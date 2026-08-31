@@ -80,6 +80,20 @@
   .leer { color: var(--grau); text-align: center; padding: 24px; font-size: .9rem; }
   .laden { color: var(--grau); text-align: center; padding: 24px; font-size: .9rem; }
   .hidden { display: none; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
+    background: var(--gruen); color: #06210f; font-weight: 700; padding: 12px 22px; border-radius: 24px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.4); opacity: 0; pointer-events: none; transition: all .25s;
+    z-index: 100; font-size: .95rem; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.fehler { background: var(--rot); color: #fff; }
+  input.pflicht-fehlt { border-color: var(--rot); }
+  .buchung.storniert { opacity: .55; }
+  .buchung.storniert .titel { text-decoration: line-through; }
+  .buchung.storno-zeile { border-left: 3px solid var(--grau); }
+  .status-tag { font-size: .62rem; padding: 1px 6px; border-radius: 20px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px; margin-left: 6px; }
+  .tag-storniert { background: #3a2020; color: #e88; }
+  .tag-storno { background: #20303a; color: #8cc; }
 </style>
 </head>
 <body>
@@ -148,6 +162,35 @@
     const eur = n => n.toLocaleString("de-DE", {style:"currency", currency:"EUR"});
     const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
+    let tippTimer = 0;
+    let toastTimer = 0;
+    function toast(text, fehler) {
+      const t = document.getElementById("toast");
+      t.textContent = text;
+      t.className = "toast show" + (fehler ? " fehler" : "");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { t.className = "toast" + (fehler ? " fehler" : ""); }, 2200);
+    }
+
+    function nameSpeichern(name) {
+      if (name) { try { localStorage.setItem("kasse_name", name); } catch (e) {} }
+    }
+    function nameLaden() {
+      try { return localStorage.getItem("kasse_name") || ""; } catch (e) { return ""; }
+    }
+
+    function nameOk(feldId) {
+      const feld = document.getElementById(feldId);
+      if (!feld.value.trim()) {
+        feld.classList.add("pflicht-fehlt");
+        feld.focus();
+        toast("Bitte Namen eingeben", true);
+        return false;
+      }
+      feld.classList.remove("pflicht-fehlt");
+      return true;
+    }
+
     let cbZaehler = 0;
     function api(params, onOk) {
       const cbName = "jsonp_cb_" + (cbZaehler++);
@@ -164,7 +207,7 @@
         .join("&");
       script.src = API_URL + "?" + qs + "&callback=" + cbName;
       script.onerror = function() {
-        if (!fertig) { delete window[cbName]; script.remove(); alert("Verbindung zum Server fehlgeschlagen."); }
+        if (!fertig) { delete window[cbName]; script.remove(); toast("Verbindung fehlgeschlagen", true); }
       };
       document.body.appendChild(script);
     }
@@ -197,20 +240,32 @@
         const pill = e.art === "PayPal" ? "pill-paypal" : "pill-bar";
         const titel = e.beschreibung ? esc(e.beschreibung) : (e.typ === "Ausgabe" ? "Ausgabe" : "Einnahme");
         const erf = e.erfasser ? '<span class="erf">· ' + esc(e.erfasser) + '</span>' : "";
-        return '<div class="buchung">' +
-          '<div class="info"><div class="titel">' + titel + '</div>' +
+
+        let boxCls = "buchung";
+        let statusTag = "";
+        let aktionen = '<a title="Bearbeiten" onclick="bearbeiten(\'' + e.id + '\')">✎</a>' +
+                       '<a title="Stornieren" onclick="loeschen(\'' + e.id + '\')">🗑</a>';
+        if (e.status === "storniert") {
+          boxCls += " storniert";
+          statusTag = '<span class="status-tag tag-storniert">storniert</span>';
+          aktionen = "";
+        } else if (e.status === "storno") {
+          boxCls += " storno-zeile";
+          statusTag = '<span class="status-tag tag-storno">Storno</span>';
+          aktionen = "";
+        }
+
+        return '<div class="' + boxCls + '">' +
+          '<div class="info"><div class="titel">' + titel + statusTag + '</div>' +
           '<div class="meta"><span class="datum">' + e.datum + '</span>' +
           '<span class="pill ' + pill + '">' + e.art + '</span>' + erf + '</div></div>' +
           '<div class="wert ' + cls + '">' + vz + eur(e.betrag) + '</div>' +
-          '<div class="aktionen">' +
-          '<a title="Bearbeiten" onclick="bearbeiten(\'' + e.id + '\')">✎</a>' +
-          '<a title="Löschen" onclick="loeschen(\'' + e.id + '\')">🗑</a>' +
-          '</div></div>';
+          '<div class="aktionen">' + aktionen + '</div></div>';
       }).join("");
     }
 
     function verarbeite(d) {
-      if (!d || d.fehler) { alert("Fehler: " + (d ? d.fehler : "keine Antwort")); return; }
+      if (!d || d.fehler) { toast("Fehler: " + (d ? d.fehler : "keine Antwort"), true); return; }
       alle = d.entries || [];
       barBestandGesamt = d.barBestand || 0;
       render();
@@ -222,21 +277,29 @@
 
     function zaehlen() {
       const betrag = document.getElementById("z_betrag").value;
-      if (betrag === "") return;
+      if (betrag === "") { toast("Bitte Betrag eingeben", true); return; }
+      if (!nameOk("z_erfasser")) return;
+      const name = document.getElementById("z_erfasser").value.trim();
+      nameSpeichern(name);
       const btn = document.getElementById("z_btn");
       btn.disabled = true; btn.textContent = "Speichere…";
       const iso = document.getElementById("z_datum").value;
       const de = iso ? iso.split("-").reverse().join(".") : "";
-      api({ action:"zaehle", betrag: betrag, erfasser: document.getElementById("z_erfasser").value, buchungsdatum: de }, d => {
+      api({ action:"zaehle", betrag: betrag, erfasser: name, buchungsdatum: de }, d => {
         verarbeite(d);
         document.getElementById("z_betrag").value = "";
         btn.disabled = false; btn.textContent = "Bestand übernehmen";
+        toast("✓ Bestand gespeichert");
       });
     }
 
     function speichern() {
       const betrag = document.getElementById("betrag").value;
-      if (!betrag) return;
+      if (!betrag) { toast("Bitte Betrag eingeben", true); return; }
+      if (!nameOk("erfasser")) return;
+      const name = document.getElementById("erfasser").value.trim();
+      nameSpeichern(name);
+      const war = bearbeiteId;
       const btn = document.getElementById("btn");
       btn.disabled = true; btn.textContent = "Speichere…";
       const iso = document.getElementById("buchungsdatum").value;
@@ -247,11 +310,12 @@
         document.getElementById("beschreibung").value = "";
         btn.disabled = false; btn.textContent = "Buchen";
         bearbeiteId = null;
+        toast(war ? "✓ Änderung gespeichert" : "✓ Gebucht");
       };
       const p = {
         betrag: betrag,
         beschreibung: document.getElementById("beschreibung").value,
-        erfasser: document.getElementById("erfasser").value,
+        erfasser: name,
         art: document.getElementById("art").value,
         typ: document.getElementById("typ").value,
         buchungsdatum: de
@@ -262,15 +326,19 @@
 
     function umbuchen() {
       const betrag = document.getElementById("u_betrag").value;
-      if (!betrag) return;
+      if (!betrag) { toast("Bitte Betrag eingeben", true); return; }
+      if (!nameOk("u_erfasser")) return;
+      const name = document.getElementById("u_erfasser").value.trim();
+      nameSpeichern(name);
       const btn = document.getElementById("u_btn");
       btn.disabled = true; btn.textContent = "Speichere…";
       const iso = document.getElementById("u_datum").value;
       const de = iso ? iso.split("-").reverse().join(".") : "";
-      api({ action:"umbuch", betrag: betrag, erfasser: document.getElementById("u_erfasser").value, buchungsdatum: de }, d => {
+      api({ action:"umbuch", betrag: betrag, erfasser: name, buchungsdatum: de }, d => {
         verarbeite(d);
         document.getElementById("u_betrag").value = "";
         btn.disabled = false; btn.textContent = "In Barkasse übernehmen";
+        toast("✓ Umgebucht");
       });
     }
 
@@ -290,14 +358,33 @@
     }
 
     function loeschen(id) {
-      if (!confirm("Diese Buchung wirklich löschen?")) return;
-      api({ action:"delete", id: id }, verarbeite);
+      if (!confirm("Diese Buchung stornieren? Sie bleibt zur Nachverfolgung sichtbar.")) return;
+      api({ action:"delete", id: id, erfasser: nameLaden() }, d => { verarbeite(d); toast("✓ Storniert"); });
     }
 
     const heute = new Date().toISOString().slice(0,10);
     document.getElementById("z_datum").value = heute;
     document.getElementById("u_datum").value = heute;
+
+    const gemerkt = nameLaden();
+    if (gemerkt) {
+      document.getElementById("z_erfasser").value = gemerkt;
+      document.getElementById("erfasser").value = gemerkt;
+      document.getElementById("u_erfasser").value = gemerkt;
+    }
+
+    document.addEventListener("input", function() { tippTimer = Date.now(); });
+
+    setInterval(function() {
+      const tippAktiv = (Date.now() - tippTimer) < 8000;
+      if (tippAktiv || bearbeiteId) return;
+      api({ action: "getEntries" }, function(d) {
+        if (d && !d.fehler) { alle = d.entries || []; barBestandGesamt = d.barBestand || 0; render(); }
+      });
+    }, 30000);
+
     ladeDaten();
   </script>
+  <div id="toast" class="toast"></div>
 </body>
 </html>
