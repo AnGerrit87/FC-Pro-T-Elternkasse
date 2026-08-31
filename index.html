@@ -118,6 +118,7 @@
     <h3>Bargeld zählen</h3>
     <div class="hint">Zähl das Geld in der Kasse und gib den <b>aktuellen Gesamtbetrag</b> ein. Die App bucht automatisch die Differenz zum letzten Stand. (Startgeld: einfach den Anfangsbetrag eingeben.)</div>
     <input id="z_betrag" type="number" inputmode="decimal" step="0.01" placeholder="Gezählter Bar-Bestand in € (z.B. 68.50)">
+    <input id="z_spieltag" type="number" inputmode="numeric" min="1" placeholder="Spieltag (z.B. 4)">
     <input id="z_datum" type="date">
     <input id="z_erfasser" type="text" placeholder="Dein Name">
     <button id="z_btn" onclick="zaehlen()">Bestand übernehmen</button>
@@ -191,7 +192,6 @@
       return true;
     }
 
-    // schreibt den Namen in alle drei Felder
     function nameInAlleFelder(wert) {
       ["z_erfasser", "erfasser", "u_erfasser"].forEach(function(id) {
         const f = document.getElementById(id);
@@ -289,11 +289,13 @@
       if (!nameOk("z_erfasser")) return;
       const name = document.getElementById("z_erfasser").value.trim();
       nameSpeichern(name);
+      const spieltag = document.getElementById("z_spieltag").value.trim();
+      if (spieltag) { try { localStorage.setItem("kasse_spieltag", spieltag); } catch (e) {} }
       const btn = document.getElementById("z_btn");
       btn.disabled = true; btn.textContent = "Speichere…";
       const iso = document.getElementById("z_datum").value;
       const de = iso ? iso.split("-").reverse().join(".") : "";
-      api({ action:"zaehle", betrag: betrag, erfasser: name, buchungsdatum: de }, d => {
+      api({ action:"zaehle", betrag: betrag, erfasser: name, buchungsdatum: de, spieltag: spieltag }, d => {
         verarbeite(d);
         document.getElementById("z_betrag").value = "";
         btn.disabled = false; btn.textContent = "Bestand übernehmen";
@@ -374,11 +376,14 @@
     document.getElementById("z_datum").value = heute;
     document.getElementById("u_datum").value = heute;
 
-    // Gemerkten Namen in alle Felder vorbelegen
     const gemerkt = nameLaden();
     if (gemerkt) nameInAlleFelder(gemerkt);
 
-    // Namensfelder koppeln: Tippen in einem Feld speichert sofort und spiegelt in die anderen
+    try {
+      const stalt = localStorage.getItem("kasse_spieltag");
+      if (stalt) document.getElementById("z_spieltag").value = stalt;
+    } catch (e) {}
+
     ["z_erfasser", "erfasser", "u_erfasser"].forEach(function(id) {
       const feld = document.getElementById(id);
       if (feld) feld.addEventListener("input", function() {
