@@ -191,6 +191,14 @@
       return true;
     }
 
+    // schreibt den Namen in alle drei Felder
+    function nameInAlleFelder(wert) {
+      ["z_erfasser", "erfasser", "u_erfasser"].forEach(function(id) {
+        const f = document.getElementById(id);
+        if (f) f.value = wert;
+      });
+    }
+
     let cbZaehler = 0;
     function api(params, onOk) {
       const cbName = "jsonp_cb_" + (cbZaehler++);
@@ -366,12 +374,24 @@
     document.getElementById("z_datum").value = heute;
     document.getElementById("u_datum").value = heute;
 
+    // Gemerkten Namen in alle Felder vorbelegen
     const gemerkt = nameLaden();
-    if (gemerkt) {
-      document.getElementById("z_erfasser").value = gemerkt;
-      document.getElementById("erfasser").value = gemerkt;
-      document.getElementById("u_erfasser").value = gemerkt;
-    }
+    if (gemerkt) nameInAlleFelder(gemerkt);
+
+    // Namensfelder koppeln: Tippen in einem Feld speichert sofort und spiegelt in die anderen
+    ["z_erfasser", "erfasser", "u_erfasser"].forEach(function(id) {
+      const feld = document.getElementById(id);
+      if (feld) feld.addEventListener("input", function() {
+        const wert = feld.value;
+        nameSpeichern(wert.trim());
+        ["z_erfasser", "erfasser", "u_erfasser"].forEach(function(anderes) {
+          if (anderes !== id) {
+            const f = document.getElementById(anderes);
+            if (f) f.value = wert;
+          }
+        });
+      });
+    });
 
     document.addEventListener("input", function() { tippTimer = Date.now(); });
 
