@@ -24,13 +24,11 @@
   }
   * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
   body { margin: 0 auto; padding: 16px; background: var(--bg); color: var(--text); max-width: 560px; }
-
   .kopf { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
   .kopf .logo { width: 52px; height: 52px; flex: none; border-radius: 50%; }
   .kopf h1 { font-size: 1.25rem; margin: 0; line-height: 1.15; letter-spacing: .3px; }
   .kopf h1 small { display: block; font-size: .7rem; color: var(--rot); font-weight: 700;
     text-transform: uppercase; letter-spacing: 2px; }
-
   select, input, button { width: 100%; padding: 12px; font-size: 1rem; margin-bottom: 10px;
     border: 1px solid var(--karte-rand); border-radius: 8px; background: #262a31; color: var(--text); }
   input::placeholder { color: #6b7580; }
@@ -38,7 +36,6 @@
     letter-spacing: .3px; transition: background .15s; }
   button:hover { background: var(--rot-dunkel); }
   button:disabled { opacity: .5; }
-
   .kpis { display: flex; gap: 8px; margin: 4px 0 18px; }
   .kpi { flex: 1; background: var(--karte); border: 1px solid var(--karte-rand); border-radius: 10px;
     padding: 12px 8px; text-align: center; }
@@ -46,21 +43,17 @@
   .kpi b { font-size: 1.15rem; }
   .pos { color: var(--gruen); }
   .neg { color: var(--rot); }
-
   .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
   .tabs button { background: #262a31; color: var(--grau); border: 1px solid var(--karte-rand);
     padding: 10px 6px; font-size: .82rem; }
   .tabs button.aktiv { background: var(--rot); color: #fff; border-color: var(--rot); }
-
   .box { background: var(--karte); border: 1px solid var(--karte-rand); border-radius: 10px;
     padding: 14px; margin-bottom: 20px; }
   .box h3 { margin: 0 0 4px; font-size: 1rem; }
   .box .hint { color: var(--grau); font-size: .8rem; margin-bottom: 12px; line-height: 1.4; }
   .box .hint b { color: var(--text); }
-
   h2.liste-titel { font-size: .8rem; color: var(--grau); text-transform: uppercase;
     letter-spacing: 1px; margin: 0 0 4px; }
-
   .buchung { display: flex; align-items: center; gap: 12px; background: var(--karte);
     border: 1px solid var(--karte-rand); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; }
   .buchung .info { flex: 1; min-width: 0; }
@@ -160,6 +153,7 @@
     let alle = [];
     let barBestandGesamt = 0;
     let bearbeiteId = null;
+    let spieltagBeruehrt = false;
     const eur = n => n.toLocaleString("de-DE", {style:"currency", currency:"EUR"});
     const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
@@ -276,6 +270,10 @@
       if (!d || d.fehler) { toast("Fehler: " + (d ? d.fehler : "keine Antwort"), true); return; }
       alle = d.entries || [];
       barBestandGesamt = d.barBestand || 0;
+      if (!spieltagBeruehrt && d.maxSpieltag && d.maxSpieltag > 0) {
+        const feld = document.getElementById("z_spieltag");
+        if (feld && feld.value.trim() === "") feld.value = d.maxSpieltag;
+      }
       render();
     }
 
@@ -290,7 +288,6 @@
       const name = document.getElementById("z_erfasser").value.trim();
       nameSpeichern(name);
       const spieltag = document.getElementById("z_spieltag").value.trim();
-      if (spieltag) { try { localStorage.setItem("kasse_spieltag", spieltag); } catch (e) {} }
       const btn = document.getElementById("z_btn");
       btn.disabled = true; btn.textContent = "Speichere…";
       const iso = document.getElementById("z_datum").value;
@@ -379,11 +376,6 @@
     const gemerkt = nameLaden();
     if (gemerkt) nameInAlleFelder(gemerkt);
 
-    try {
-      const stalt = localStorage.getItem("kasse_spieltag");
-      if (stalt) document.getElementById("z_spieltag").value = stalt;
-    } catch (e) {}
-
     ["z_erfasser", "erfasser", "u_erfasser"].forEach(function(id) {
       const feld = document.getElementById(id);
       if (feld) feld.addEventListener("input", function() {
@@ -398,13 +390,24 @@
       });
     });
 
+    const stFeld = document.getElementById("z_spieltag");
+    if (stFeld) stFeld.addEventListener("input", function() { spieltagBeruehrt = true; });
+
     document.addEventListener("input", function() { tippTimer = Date.now(); });
 
     setInterval(function() {
       const tippAktiv = (Date.now() - tippTimer) < 8000;
       if (tippAktiv || bearbeiteId) return;
       api({ action: "getEntries" }, function(d) {
-        if (d && !d.fehler) { alle = d.entries || []; barBestandGesamt = d.barBestand || 0; render(); }
+        if (d && !d.fehler) {
+          alle = d.entries || [];
+          barBestandGesamt = d.barBestand || 0;
+          if (!spieltagBeruehrt && d.maxSpieltag && d.maxSpieltag > 0) {
+            const feld = document.getElementById("z_spieltag");
+            if (feld && feld.value.trim() === "") feld.value = d.maxSpieltag;
+          }
+          render();
+        }
       });
     }, 30000);
 
