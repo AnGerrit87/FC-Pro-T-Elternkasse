@@ -281,6 +281,22 @@
       api({ action: "getEntries" }, verarbeite);
     }
 
+    // Zeigt eine Buchung sofort an, während im Hintergrund gespeichert wird
+    function sofortAnzeigen(eintrag) {
+      alle.unshift(eintrag);
+      if (eintrag.art === "Bar") {
+        barBestandGesamt += (eintrag.typ === "Ausgabe" ? -eintrag.betrag : eintrag.betrag);
+        barBestandGesamt = Math.round(barBestandGesamt * 100) / 100;
+      }
+      render();
+    }
+
+    function heuteDe() {
+      const d = new Date();
+      const p = n => String(n).padStart(2, "0");
+      return p(d.getDate()) + "." + p(d.getMonth()+1) + "." + d.getFullYear();
+    }
+
     function zaehlen() {
       const betrag = document.getElementById("z_betrag").value;
       if (betrag === "") { toast("Bitte Betrag eingeben", true); return; }
@@ -328,7 +344,21 @@
         buchungsdatum: de
       };
       if (bearbeiteId) { p.action = "update"; p.id = bearbeiteId; api(p, cb); }
-      else { p.action = "add"; api(p, cb); }
+      else {
+        p.action = "add";
+        sofortAnzeigen({
+          datum: de || heuteDe(),
+          iso: "",
+          betrag: Number(String(betrag).replace(",", ".")) || 0,
+          beschreibung: p.beschreibung,
+          erfasser: name,
+          art: p.art,
+          typ: p.typ,
+          id: "temp-" + Date.now(),
+          status: ""
+        });
+        api(p, cb);
+      }
     }
 
     function umbuchen() {
@@ -409,7 +439,7 @@
           render();
         }
       });
-    }, 30000);
+    }, 75000);
 
     ladeDaten();
   </script>
