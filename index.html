@@ -36,7 +36,7 @@
     letter-spacing: .3px; transition: background .15s; }
   button:hover { background: var(--rot-dunkel); }
   button:disabled { opacity: .5; }
-  .kpis { display: flex; gap: 8px; margin: 4px 0 18px; }
+  .kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 4px 0 18px; }
   .kpi { flex: 1; background: var(--karte); border: 1px solid var(--karte-rand); border-radius: 10px;
     padding: 12px 8px; text-align: center; }
   .kpi span { display: block; font-size: .7rem; color: var(--grau); text-transform: uppercase; letter-spacing: 1px; }
@@ -65,6 +65,7 @@
     letter-spacing: .3px; }
   .pill-bar { background: #33383f; color: #cfd6dd; }
   .pill-paypal { background: #16324d; color: #6db3f2; }
+  .pill-ruecklage { background: #3a2f16; color: #f2c76d; }
   .buchung .erf { color: var(--grau); font-size: .78rem; }
   .buchung .wert { font-size: 1.05rem; font-weight: 700; white-space: nowrap; }
   .buchung .aktionen { display: flex; gap: 6px; }
@@ -96,52 +97,65 @@
   </div>
 
   <div class="kpis">
-    <div class="kpi"><span>Bar-Bestand</span><b id="bar" class="pos">– €</b></div>
+    <div class="kpi"><span>Kasse</span><b id="bar" class="pos">– €</b></div>
+    <div class="kpi"><span>Rücklage</span><b id="ruecklage" class="pos">– €</b></div>
     <div class="kpi"><span>PayPal</span><b id="paypal" class="pos">– €</b></div>
     <div class="kpi"><span>Gesamt</span><b id="gesamt">– €</b></div>
   </div>
 
   <div class="tabs">
-    <button id="tab-zaehlen" class="aktiv" onclick="tab('zaehlen')">Kasse zählen</button>
+    <button id="tab-zaehlen" class="aktiv" onclick="tab('zaehlen')">Kassenabschluss</button>
     <button id="tab-buchen" onclick="tab('buchen')">Einzelbuchung</button>
-    <button id="tab-umbuch" onclick="tab('umbuch')">PayPal → Bar</button>
+    <button id="tab-umbuch" onclick="tab('umbuch')">Umbuchen</button>
   </div>
 
   <div id="box-zaehlen" class="box">
-    <h3>Bargeld zählen</h3>
-    <div class="hint">Zähl das Geld in der Kasse und gib den <b>aktuellen Gesamtbetrag</b> ein. Die App bucht automatisch die Differenz zum letzten Stand. (Startgeld: einfach den Anfangsbetrag eingeben.)</div>
-    <input id="z_betrag" type="number" inputmode="decimal" step="0.01" placeholder="Gezählter Bar-Bestand in € (z.B. 68.50)">
-    <input id="z_spieltag" type="number" inputmode="numeric" min="1" placeholder="Spieltag (z.B. 4)">
+    <h3>Kassenabschluss</h3>
+    <div class="hint">Zähl das Bargeld nach dem Spieltag. Die App gleicht zuerst den <b>gezählten Bestand</b> mit dem Buchbestand ab und legt anschließend alles oberhalb des gewünschten <b>Sollbestands</b> automatisch in die Rücklage.</div>
+    <input id="z_betrag" type="number" inputmode="decimal" step="0.01" min="0" placeholder="Gezählter Kassenbestand in € (z.B. 438.50)">
+    <input id="z_soll" type="number" inputmode="decimal" step="0.01" min="0" placeholder="Sollbestand in der Kasse in € (z.B. 150.00)">
+    <input id="z_spieltag" type="number" inputmode="numeric" min="1" placeholder="Spieltag (z.B. 6)">
     <input id="z_datum" type="date">
     <input id="z_erfasser" type="text" placeholder="Dein Name">
-    <button id="z_btn" onclick="zaehlen()">Bestand übernehmen</button>
+    <button id="z_btn" onclick="zaehlen()">Kassenabschluss durchführen</button>
   </div>
 
   <div id="box-buchen" class="box hidden">
     <h3>Einzelbuchung</h3>
-    <div class="hint">Für PayPal-Einnahmen oder einzelne Posten (z.B. Wareneinkauf).</div>
+    <div class="hint">Für einzelne Spenden oder seltene Ausgaben, z.B. ein Trainergeschenk oder eine Weihnachtsfeier.</div>
     <select id="typ">
       <option value="Einnahme">Einnahme</option>
       <option value="Ausgabe">Ausgabe</option>
     </select>
     <select id="art">
+      <option value="Bar">Kasse</option>
+      <option value="Rücklage">Rücklage</option>
       <option value="PayPal">PayPal</option>
-      <option value="Bar">Bar</option>
     </select>
     <input id="buchungsdatum" type="date">
     <input id="betrag" type="number" inputmode="decimal" step="0.01" placeholder="Betrag in € (z.B. 2.50)">
-    <input id="beschreibung" type="text" placeholder="Beschreibung (z.B. Trikotverkauf)">
+    <input id="beschreibung" type="text" placeholder="Beschreibung (z.B. Spende oder Trainergeschenk)">
     <input id="erfasser" type="text" placeholder="Dein Name">
     <button id="btn" onclick="speichern()">Buchen</button>
   </div>
 
   <div id="box-umbuch" class="box hidden">
-    <h3>PayPal-Guthaben in die Barkasse holen</h3>
-    <div class="hint">Wenn ihr PayPal-Geld abhebt und <b>bar in die Kasse</b> legt: Betrag eingeben. Der PayPal-Bestand sinkt, der Bar-Bestand steigt – die Gesamtsumme bleibt gleich.</div>
-    <input id="u_betrag" type="number" inputmode="decimal" step="0.01" placeholder="Betrag von PayPal in € (z.B. 30.00)">
+    <h3>Geld umbuchen</h3>
+    <div class="hint">Verschiebe Geld zwischen <b>Kasse</b>, <b>Rücklage</b> und <b>PayPal</b>. Die Gesamtsumme bleibt dabei unverändert.</div>
+    <select id="u_von">
+      <option value="Bar">Von: Kasse</option>
+      <option value="Rücklage">Von: Rücklage</option>
+      <option value="PayPal">Von: PayPal</option>
+    </select>
+    <select id="u_nach">
+      <option value="Rücklage">Nach: Rücklage</option>
+      <option value="Bar">Nach: Kasse</option>
+      <option value="PayPal">Nach: PayPal</option>
+    </select>
+    <input id="u_betrag" type="number" inputmode="decimal" step="0.01" min="0" placeholder="Betrag in € (z.B. 300.00)">
     <input id="u_datum" type="date">
     <input id="u_erfasser" type="text" placeholder="Dein Name">
-    <button id="u_btn" onclick="umbuchen()">In Barkasse übernehmen</button>
+    <button id="u_btn" onclick="umbuchen()">Umbuchen</button>
   </div>
 
   <h2 class="liste-titel">Buchungen</h2>
@@ -152,6 +166,8 @@
 
     let alle = [];
     let barBestandGesamt = 0;
+    let ruecklageBestandGesamt = 0;
+    let paypalBestandGesamt = 0;
     let bearbeiteId = null;
     let spieltagBeruehrt = false;
     const eur = n => n.toLocaleString("de-DE", {style:"currency", currency:"EUR"});
@@ -224,12 +240,10 @@
     }
 
     function render() {
-      const ppEin = alle.filter(e=>e.art==="PayPal"&&e.typ==="Einnahme").reduce((s,e)=>s+e.betrag,0);
-      const ppAus = alle.filter(e=>e.art==="PayPal"&&e.typ==="Ausgabe").reduce((s,e)=>s+e.betrag,0);
-      const paypal = ppEin - ppAus;
       document.getElementById("bar").textContent = eur(barBestandGesamt);
-      document.getElementById("paypal").textContent = eur(paypal);
-      document.getElementById("gesamt").textContent = eur(barBestandGesamt + paypal);
+      document.getElementById("ruecklage").textContent = eur(ruecklageBestandGesamt);
+      document.getElementById("paypal").textContent = eur(paypalBestandGesamt);
+      document.getElementById("gesamt").textContent = eur(barBestandGesamt + ruecklageBestandGesamt + paypalBestandGesamt);
 
       if (alle.length === 0) {
         document.getElementById("liste").innerHTML = '<div class="leer">Noch keine Buchungen.</div>';
@@ -239,7 +253,8 @@
       document.getElementById("liste").innerHTML = alle.map(e => {
         const vz = e.typ === "Ausgabe" ? "-" : "+";
         const cls = e.typ === "Ausgabe" ? "neg" : "pos";
-        const pill = e.art === "PayPal" ? "pill-paypal" : "pill-bar";
+        const pill = e.art === "PayPal" ? "pill-paypal" : (e.art === "Rücklage" ? "pill-ruecklage" : "pill-bar");
+        const artAnzeige = e.art === "Bar" ? "Kasse" : e.art;
         const titel = e.beschreibung ? esc(e.beschreibung) : (e.typ === "Ausgabe" ? "Ausgabe" : "Einnahme");
         const erf = e.erfasser ? '<span class="erf">· ' + esc(e.erfasser) + '</span>' : "";
 
@@ -260,7 +275,7 @@
         return '<div class="' + boxCls + '">' +
           '<div class="info"><div class="titel">' + titel + statusTag + '</div>' +
           '<div class="meta"><span class="datum">' + e.datum + '</span>' +
-          '<span class="pill ' + pill + '">' + e.art + '</span>' + erf + '</div></div>' +
+          '<span class="pill ' + pill + '">' + artAnzeige + '</span>' + erf + '</div></div>' +
           '<div class="wert ' + cls + '">' + vz + eur(e.betrag) + '</div>' +
           '<div class="aktionen">' + aktionen + '</div></div>';
       }).join("");
@@ -269,7 +284,9 @@
     function verarbeite(d) {
       if (!d || d.fehler) { toast("Fehler: " + (d ? d.fehler : "keine Antwort"), true); return; }
       alle = d.entries || [];
-      barBestandGesamt = d.barBestand || 0;
+      barBestandGesamt = d.kasseBestand ?? d.barBestand ?? 0;
+      ruecklageBestandGesamt = d.ruecklageBestand || 0;
+      paypalBestandGesamt = d.paypalBestand || 0;
       if (!spieltagBeruehrt && d.maxSpieltag && d.maxSpieltag > 0) {
         const feld = document.getElementById("z_spieltag");
         if (feld && feld.value.trim() === "") feld.value = d.maxSpieltag;
@@ -284,10 +301,10 @@
     // Zeigt eine Buchung sofort an, während im Hintergrund gespeichert wird
     function sofortAnzeigen(eintrag) {
       alle.unshift(eintrag);
-      if (eintrag.art === "Bar") {
-        barBestandGesamt += (eintrag.typ === "Ausgabe" ? -eintrag.betrag : eintrag.betrag);
-        barBestandGesamt = Math.round(barBestandGesamt * 100) / 100;
-      }
+      const delta = (eintrag.typ === "Ausgabe" ? -eintrag.betrag : eintrag.betrag);
+      if (eintrag.art === "Bar") barBestandGesamt = Math.round((barBestandGesamt + delta) * 100) / 100;
+      else if (eintrag.art === "Rücklage") ruecklageBestandGesamt = Math.round((ruecklageBestandGesamt + delta) * 100) / 100;
+      else if (eintrag.art === "PayPal") paypalBestandGesamt = Math.round((paypalBestandGesamt + delta) * 100) / 100;
       render();
     }
 
@@ -299,20 +316,29 @@
 
     function zaehlen() {
       const betrag = document.getElementById("z_betrag").value;
-      if (betrag === "") { toast("Bitte Betrag eingeben", true); return; }
+      const soll = document.getElementById("z_soll").value;
+      if (betrag === "") { toast("Bitte gezählten Kassenbestand eingeben", true); return; }
+      if (soll === "") { toast("Bitte Sollbestand eingeben", true); return; }
       if (!nameOk("z_erfasser")) return;
       const name = document.getElementById("z_erfasser").value.trim();
       nameSpeichern(name);
+      try { localStorage.setItem("kasse_soll", soll); } catch (e) {}
       const spieltag = document.getElementById("z_spieltag").value.trim();
       const btn = document.getElementById("z_btn");
       btn.disabled = true; btn.textContent = "Speichere…";
       const iso = document.getElementById("z_datum").value;
       const de = iso ? iso.split("-").reverse().join(".") : "";
-      api({ action:"zaehle", betrag: betrag, erfasser: name, buchungsdatum: de, spieltag: spieltag }, d => {
+      api({ action:"abschluss", betrag: betrag, sollbestand: soll, erfasser: name, buchungsdatum: de, spieltag: spieltag }, d => {
+        if (!d || d.fehler) {
+          btn.disabled = false; btn.textContent = "Kassenabschluss durchführen";
+          verarbeite(d);
+          return;
+        }
+        const verschoben = d.abschluss ? d.abschluss.inRuecklage : 0;
         verarbeite(d);
         document.getElementById("z_betrag").value = "";
-        btn.disabled = false; btn.textContent = "Bestand übernehmen";
-        toast("✓ Bestand gespeichert");
+        btn.disabled = false; btn.textContent = "Kassenabschluss durchführen";
+        toast(verschoben > 0 ? "✓ Abschluss: " + eur(verschoben) + " in Rücklage" : "✓ Kassenabschluss gespeichert");
       });
     }
 
@@ -364,6 +390,9 @@
     function umbuchen() {
       const betrag = document.getElementById("u_betrag").value;
       if (!betrag) { toast("Bitte Betrag eingeben", true); return; }
+      const von = document.getElementById("u_von").value;
+      const nach = document.getElementById("u_nach").value;
+      if (von === nach) { toast("Quelle und Ziel dürfen nicht gleich sein", true); return; }
       if (!nameOk("u_erfasser")) return;
       const name = document.getElementById("u_erfasser").value.trim();
       nameSpeichern(name);
@@ -371,10 +400,15 @@
       btn.disabled = true; btn.textContent = "Speichere…";
       const iso = document.getElementById("u_datum").value;
       const de = iso ? iso.split("-").reverse().join(".") : "";
-      api({ action:"umbuch", betrag: betrag, erfasser: name, buchungsdatum: de }, d => {
+      api({ action:"umbuch", betrag: betrag, von: von, nach: nach, erfasser: name, buchungsdatum: de }, d => {
+        if (!d || d.fehler) {
+          btn.disabled = false; btn.textContent = "Umbuchen";
+          verarbeite(d);
+          return;
+        }
         verarbeite(d);
         document.getElementById("u_betrag").value = "";
-        btn.disabled = false; btn.textContent = "In Barkasse übernehmen";
+        btn.disabled = false; btn.textContent = "Umbuchen";
         toast("✓ Umgebucht");
       });
     }
@@ -402,6 +436,10 @@
     const heute = new Date().toISOString().slice(0,10);
     document.getElementById("z_datum").value = heute;
     document.getElementById("u_datum").value = heute;
+    try {
+      const soll = localStorage.getItem("kasse_soll");
+      if (soll) document.getElementById("z_soll").value = soll;
+    } catch (e) {}
 
     const gemerkt = nameLaden();
     if (gemerkt) nameInAlleFelder(gemerkt);
@@ -431,7 +469,9 @@
       api({ action: "getEntries" }, function(d) {
         if (d && !d.fehler) {
           alle = d.entries || [];
-          barBestandGesamt = d.barBestand || 0;
+          barBestandGesamt = d.kasseBestand ?? d.barBestand ?? 0;
+      ruecklageBestandGesamt = d.ruecklageBestand || 0;
+      paypalBestandGesamt = d.paypalBestand || 0;
           if (!spieltagBeruehrt && d.maxSpieltag && d.maxSpieltag > 0) {
             const feld = document.getElementById("z_spieltag");
             if (feld && feld.value.trim() === "") feld.value = d.maxSpieltag;
