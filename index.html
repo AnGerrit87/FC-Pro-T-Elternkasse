@@ -104,20 +104,19 @@
   </div>
 
   <div class="tabs">
-    <button id="tab-zaehlen" class="aktiv" onclick="tab('zaehlen')">Kassenabschluss</button>
+    <button id="tab-zaehlen" class="aktiv" onclick="tab('zaehlen')">Kasse zählen</button>
     <button id="tab-buchen" onclick="tab('buchen')">Einzelbuchung</button>
     <button id="tab-umbuch" onclick="tab('umbuch')">Umbuchen</button>
   </div>
 
   <div id="box-zaehlen" class="box">
-    <h3>Kassenabschluss</h3>
-    <div class="hint">Zähl das Bargeld nach dem Spieltag. Die App gleicht zuerst den <b>gezählten Bestand</b> mit dem Buchbestand ab und legt anschließend alles oberhalb des gewünschten <b>Sollbestands</b> automatisch in die Rücklage.</div>
+    <h3>Kasse zählen</h3>
+    <div class="hint">Zähl das vorhandene Bargeld. Die App gleicht den <b>gezählten Bestand</b> mit dem aktuellen Buchbestand der Kasse ab. Geld, das du separat aufbewahren möchtest, verschiebst du anschließend einfach über <b>Umbuchen</b> in die Rücklage.</div>
     <input id="z_betrag" type="number" inputmode="decimal" step="0.01" min="0" placeholder="Gezählter Kassenbestand in € (z.B. 438.50)">
-    <input id="z_soll" type="number" inputmode="decimal" step="0.01" min="0" placeholder="Sollbestand in der Kasse in € (z.B. 150.00)">
     <input id="z_spieltag" type="number" inputmode="numeric" min="1" placeholder="Spieltag (z.B. 6)">
     <input id="z_datum" type="date">
     <input id="z_erfasser" type="text" placeholder="Dein Name">
-    <button id="z_btn" onclick="zaehlen()">Kassenabschluss durchführen</button>
+    <button id="z_btn" onclick="zaehlen()">Kassenbestand speichern</button>
   </div>
 
   <div id="box-buchen" class="box hidden">
@@ -316,29 +315,25 @@
 
     function zaehlen() {
       const betrag = document.getElementById("z_betrag").value;
-      const soll = document.getElementById("z_soll").value;
       if (betrag === "") { toast("Bitte gezählten Kassenbestand eingeben", true); return; }
-      if (soll === "") { toast("Bitte Sollbestand eingeben", true); return; }
       if (!nameOk("z_erfasser")) return;
       const name = document.getElementById("z_erfasser").value.trim();
       nameSpeichern(name);
-      try { localStorage.setItem("kasse_soll", soll); } catch (e) {}
       const spieltag = document.getElementById("z_spieltag").value.trim();
       const btn = document.getElementById("z_btn");
       btn.disabled = true; btn.textContent = "Speichere…";
       const iso = document.getElementById("z_datum").value;
       const de = iso ? iso.split("-").reverse().join(".") : "";
-      api({ action:"abschluss", betrag: betrag, sollbestand: soll, erfasser: name, buchungsdatum: de, spieltag: spieltag }, d => {
+      api({ action:"zaehle", betrag: betrag, erfasser: name, buchungsdatum: de, spieltag: spieltag }, d => {
         if (!d || d.fehler) {
-          btn.disabled = false; btn.textContent = "Kassenabschluss durchführen";
+          btn.disabled = false; btn.textContent = "Kassenbestand speichern";
           verarbeite(d);
           return;
         }
-        const verschoben = d.abschluss ? d.abschluss.inRuecklage : 0;
         verarbeite(d);
         document.getElementById("z_betrag").value = "";
-        btn.disabled = false; btn.textContent = "Kassenabschluss durchführen";
-        toast(verschoben > 0 ? "✓ Abschluss: " + eur(verschoben) + " in Rücklage" : "✓ Kassenabschluss gespeichert");
+        btn.disabled = false; btn.textContent = "Kassenbestand speichern";
+        toast("✓ Kassenbestand gespeichert");
       });
     }
 
@@ -436,11 +431,6 @@
     const heute = new Date().toISOString().slice(0,10);
     document.getElementById("z_datum").value = heute;
     document.getElementById("u_datum").value = heute;
-    try {
-      const soll = localStorage.getItem("kasse_soll");
-      if (soll) document.getElementById("z_soll").value = soll;
-    } catch (e) {}
-
     const gemerkt = nameLaden();
     if (gemerkt) nameInAlleFelder(gemerkt);
 
