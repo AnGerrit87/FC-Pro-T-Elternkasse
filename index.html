@@ -24,70 +24,82 @@
   }
   * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
   body { margin: 0 auto; padding: 16px; background: var(--bg); color: var(--text); max-width: 560px; }
-  .kopf { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+  .kopf { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
   .kopf .logo { width: 52px; height: 52px; flex: none; border-radius: 50%; }
   .kopf h1 { font-size: 1.25rem; margin: 0; line-height: 1.15; letter-spacing: .3px; }
-  .kopf h1 small { display: block; font-size: .7rem; color: var(--rot); font-weight: 700;
-    text-transform: uppercase; letter-spacing: 2px; }
-  select, input, button { width: 100%; padding: 12px; font-size: 1rem; margin-bottom: 10px;
-    border: 1px solid var(--karte-rand); border-radius: 8px; background: #262a31; color: var(--text); }
+  .kopf h1 small { display: block; font-size: .7rem; color: var(--rot); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+  select, input, button { width: 100%; padding: 12px; font-size: 1rem; margin-bottom: 10px; border: 1px solid var(--karte-rand); border-radius: 8px; background: #262a31; color: var(--text); }
   input::placeholder { color: #6b7580; }
-  button { background: var(--rot); color: #fff; border: none; font-weight: 700; cursor: pointer;
-    letter-spacing: .3px; transition: background .15s; }
+  button { background: var(--rot); color: #fff; border: none; font-weight: 700; cursor: pointer; letter-spacing: .3px; transition: background .15s, transform .05s; }
+  button:active { transform: scale(.99); }
   button:hover { background: var(--rot-dunkel); }
-  button:disabled { opacity: .5; }
-  .kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 4px 0 18px; }
-  .kpi { flex: 1; background: var(--karte); border: 1px solid var(--karte-rand); border-radius: 10px;
-    padding: 12px 8px; text-align: center; }
-  .kpi span { display: block; font-size: .7rem; color: var(--grau); text-transform: uppercase; letter-spacing: 1px; }
-  .kpi b { font-size: 1.15rem; }
+  button:disabled { opacity: .5; cursor: default; }
+  .kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 4px 0 14px; }
+  .kpi { background: var(--karte); border: 1px solid var(--karte-rand); border-radius: 12px; padding: 13px 8px; text-align: center; }
+  .kpi span { display: block; font-size: .68rem; color: var(--grau); text-transform: uppercase; letter-spacing: 1px; }
+  .kpi b { display: block; margin-top: 2px; font-size: 1.18rem; }
   .pos { color: var(--gruen); }
   .neg { color: var(--rot); }
-  .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
-  .tabs button { background: #262a31; color: var(--grau); border: 1px solid var(--karte-rand);
-    padding: 10px 6px; font-size: .82rem; }
-  .tabs button.aktiv { background: var(--rot); color: #fff; border-color: var(--rot); }
-  .box { background: var(--karte); border: 1px solid var(--karte-rand); border-radius: 10px;
-    padding: 14px; margin-bottom: 20px; }
-  .box h3 { margin: 0 0 4px; font-size: 1rem; }
+
+  .start-aktionen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 8px; }
+  .start-aktionen button { margin: 0; min-height: 54px; padding: 9px 5px; font-size: .87rem; }
+  .start-aktionen button span { display: block; font-size: 1.1rem; margin-bottom: 2px; }
+  .zaehlen-link { background: #262a31; border: 1px solid var(--karte-rand); color: var(--grau); margin: 0 0 16px; padding: 9px; font-size: .82rem; }
+  .zaehlen-link:hover { background: #30353d; color: var(--text); }
+
+  .box { background: var(--karte); border: 1px solid var(--karte-rand); border-radius: 10px; padding: 14px; margin-bottom: 18px; position: relative; }
+  .box h3 { margin: 0 32px 4px 0; font-size: 1rem; }
   .box .hint { color: var(--grau); font-size: .8rem; margin-bottom: 12px; line-height: 1.4; }
   .box .hint b { color: var(--text); }
-  h2.liste-titel { font-size: .8rem; color: var(--grau); text-transform: uppercase;
-    letter-spacing: 1px; margin: 0 0 4px; }
-  .buchung { display: flex; align-items: center; gap: 12px; background: var(--karte);
-    border: 1px solid var(--karte-rand); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; }
+  .schliessen { position: absolute; right: 9px; top: 8px; width: 32px; height: 32px; padding: 0; margin: 0; border-radius: 50%; background: transparent; color: var(--grau); border: 1px solid var(--karte-rand); font-size: 1.05rem; }
+  .schliessen:hover { background: #2a2e35; color: var(--text); }
+  .hidden { display: none !important; }
+
+  .datum-zeile { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 6px; margin-bottom: 10px; }
+  .datum-zeile input, .datum-zeile button { margin: 0; }
+  .datum-zeile button { width: auto; background: #30343b; border: 1px solid var(--karte-rand); color: var(--text); font-size: .78rem; padding: 10px 9px; }
+  .datum-zeile button:hover { background: #3a3f47; }
+  .bestand-hinweis { color: var(--grau); font-size: .77rem; margin: -3px 0 10px; }
+
+  h2.liste-titel { font-size: .8rem; color: var(--grau); text-transform: uppercase; letter-spacing: 1px; margin: 0 0 6px; }
+  .buchung { display: flex; align-items: center; gap: 10px; background: var(--karte); border: 1px solid var(--karte-rand); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
   .buchung .info { flex: 1; min-width: 0; }
-  .buchung .titel { font-size: .95rem; font-weight: 600; white-space: nowrap;
-    overflow: hidden; text-overflow: ellipsis; }
-  .buchung .meta { display: flex; align-items: center; gap: 8px; margin-top: 3px; }
-  .buchung .datum { color: var(--grau); font-size: .78rem; }
-  .buchung .pill { font-size: .68rem; padding: 2px 8px; border-radius: 20px; font-weight: 600;
-    letter-spacing: .3px; }
+  .buchung .titel { font-size: .93rem; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .buchung .meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .buchung .datum, .buchung .erf { color: var(--grau); font-size: .76rem; }
+  .buchung .pill { font-size: .66rem; padding: 2px 7px; border-radius: 20px; font-weight: 650; letter-spacing: .25px; }
   .pill-bar { background: #33383f; color: #cfd6dd; }
   .pill-paypal { background: #16324d; color: #6db3f2; }
   .pill-ruecklage { background: #3a2f16; color: #f2c76d; }
-  .buchung .erf { color: var(--grau); font-size: .78rem; }
-  .buchung .wert { font-size: 1.05rem; font-weight: 700; white-space: nowrap; }
-  .buchung .aktionen { display: flex; gap: 6px; }
-  .buchung .aktionen a { cursor: pointer; font-size: 1rem; opacity: .55; padding: 4px; }
+  .pill-transfer { background: #2e263e; color: #c4a7f2; }
+  .buchung .wert { font-size: 1rem; font-weight: 750; white-space: nowrap; }
+  .wert.transfer-wert { color: #c4a7f2; }
+  .buchung .aktionen { display: flex; gap: 3px; }
+  .buchung .aktionen a { cursor: pointer; font-size: .95rem; opacity: .58; padding: 5px 3px; }
   .buchung .aktionen a:hover { opacity: 1; }
-  .leer { color: var(--grau); text-align: center; padding: 24px; font-size: .9rem; }
-  .laden { color: var(--grau); text-align: center; padding: 24px; font-size: .9rem; }
-  .hidden { display: none; }
-  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
-    background: var(--gruen); color: #06210f; font-weight: 700; padding: 12px 22px; border-radius: 24px;
-    box-shadow: 0 6px 20px rgba(0,0,0,.4); opacity: 0; pointer-events: none; transition: all .25s;
-    z-index: 100; font-size: .95rem; }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  .toast.fehler { background: var(--rot); color: #fff; }
-  input.pflicht-fehlt { border-color: var(--rot); }
-  .buchung.storniert { opacity: .55; }
+  .buchung.transfer { border-left: 3px solid #71539b; }
+  .buchung.storniert { opacity: .5; }
   .buchung.storniert .titel { text-decoration: line-through; }
   .buchung.storno-zeile { border-left: 3px solid var(--grau); }
-  .status-tag { font-size: .62rem; padding: 1px 6px; border-radius: 20px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .5px; margin-left: 6px; }
+  .status-tag { font-size: .6rem; padding: 1px 6px; border-radius: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: .45px; margin-left: 6px; }
   .tag-storniert { background: #3a2020; color: #e88; }
   .tag-storno { background: #20303a; color: #8cc; }
+  .tag-warn { background: #443619; color: #ffd77a; }
+  .leer, .laden { color: var(--grau); text-align: center; padding: 24px; font-size: .9rem; }
+
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--gruen); color: #06210f; font-weight: 700; padding: 12px 20px; border-radius: 24px; box-shadow: 0 6px 20px rgba(0,0,0,.4); opacity: 0; pointer-events: none; transition: all .25s; z-index: 110; font-size: .92rem; max-width: calc(100% - 32px); text-align: center; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.fehler { background: var(--rot); color: #fff; }
+  input.pflicht-fehlt, select.pflicht-fehlt { border-color: var(--rot); }
+
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.72); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 120; }
+  .modal { width: 100%; max-width: 430px; background: #202329; border: 1px solid #393e47; border-radius: 14px; padding: 18px; box-shadow: 0 18px 50px rgba(0,0,0,.55); }
+  .modal h3 { margin: 0 0 7px; }
+  .modal p { color: var(--grau); line-height: 1.45; font-size: .9rem; margin: 0 0 12px; }
+  .modal .storno-detail { background: #17191d; border: 1px solid var(--karte-rand); border-radius: 8px; padding: 11px; margin-bottom: 13px; font-size: .9rem; }
+  .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .modal-actions button { margin: 0; }
+  .modal-actions .abbrechen { background: #30343b; }
 </style>
 </head>
 <body>
@@ -103,45 +115,43 @@
     <div class="kpi"><span>Gesamt</span><b id="gesamt">– €</b></div>
   </div>
 
-  <div class="tabs">
-    <button id="tab-zaehlen" class="aktiv" onclick="tab('zaehlen')">Kasse zählen</button>
-    <button id="tab-buchen" onclick="tab('buchen')">Einzelbuchung</button>
-    <button id="tab-umbuch" onclick="tab('umbuch')">Umbuchen</button>
+  <div class="start-aktionen">
+    <button onclick="neueBuchung('Einnahme')"><span>＋</span>Einnahme</button>
+    <button onclick="neueBuchung('Ausgabe')"><span>−</span>Ausgabe</button>
+    <button onclick="formularOeffnen('umbuch')"><span>↔</span>Umbuchen</button>
   </div>
-
-  <div id="box-zaehlen" class="box">
-    <h3>Kasse zählen</h3>
-    <div class="hint">Zähl das vorhandene Bargeld. Die App gleicht den <b>gezählten Bestand</b> mit dem aktuellen Buchbestand der Kasse ab. Geld, das du separat aufbewahren möchtest, verschiebst du anschließend einfach über <b>Umbuchen</b> in die Rücklage.</div>
-    <input id="z_betrag" type="number" inputmode="decimal" step="0.01" min="0" placeholder="Gezählter Kassenbestand in € (z.B. 438.50)">
-    <input id="z_spieltag" type="number" inputmode="numeric" min="1" placeholder="Spieltag (z.B. 6)">
-    <input id="z_datum" type="date">
-    <input id="z_erfasser" type="text" placeholder="Dein Name">
-    <button id="z_btn" onclick="zaehlen()">Kassenbestand speichern</button>
-  </div>
+  <button class="zaehlen-link" onclick="formularOeffnen('zaehlen')">🧾 Kasse zählen / Bestand abgleichen</button>
 
   <div id="box-buchen" class="box hidden">
-    <h3>Einzelbuchung</h3>
-    <div class="hint">Für einzelne Spenden oder seltene Ausgaben, z.B. ein Trainergeschenk oder eine Weihnachtsfeier.</div>
-    <select id="typ">
+    <button class="schliessen" onclick="formulareSchliessen()" aria-label="Schließen">×</button>
+    <h3 id="buchen-titel">Einnahme buchen</h3>
+    <div id="buchen-hint" class="hint">Spende erfassen.</div>
+    <select id="typ" class="hidden">
       <option value="Einnahme">Einnahme</option>
       <option value="Ausgabe">Ausgabe</option>
     </select>
-    <select id="art">
+    <select id="art" onchange="bestandHinweisAktualisieren()">
       <option value="Bar">Kasse</option>
       <option value="Rücklage">Rücklage</option>
       <option value="PayPal">PayPal</option>
     </select>
-    <input id="buchungsdatum" type="date">
-    <input id="betrag" type="number" inputmode="decimal" step="0.01" placeholder="Betrag in € (z.B. 2.50)">
+    <div id="ausgabe-bestand" class="bestand-hinweis hidden"></div>
+    <div class="datum-zeile">
+      <input id="buchungsdatum" type="date">
+      <button type="button" onclick="datumSetzen('buchungsdatum',0)">Heute</button>
+      <button type="button" onclick="datumSetzen('buchungsdatum',-1)">Gestern</button>
+    </div>
+    <input id="betrag" type="number" inputmode="decimal" step="0.01" min="0.01" placeholder="Betrag in € (z.B. 25.00)">
     <input id="beschreibung" type="text" placeholder="Beschreibung (z.B. Spende oder Trainergeschenk)">
     <input id="erfasser" type="text" placeholder="Dein Name">
     <button id="btn" onclick="speichern()">Buchen</button>
   </div>
 
   <div id="box-umbuch" class="box hidden">
+    <button class="schliessen" onclick="formulareSchliessen()" aria-label="Schließen">×</button>
     <h3>Geld umbuchen</h3>
-    <div class="hint">Verschiebe Geld zwischen <b>Kasse</b>, <b>Rücklage</b> und <b>PayPal</b>. Die Gesamtsumme bleibt dabei unverändert.</div>
-    <select id="u_von">
+    <div class="hint">Verschiebe Geld zwischen <b>Kasse</b>, <b>Rücklage</b> und <b>PayPal</b>. Die Gesamtsumme bleibt unverändert.</div>
+    <select id="u_von" onchange="umbuchHinweisAktualisieren()">
       <option value="Bar">Von: Kasse</option>
       <option value="Rücklage">Von: Rücklage</option>
       <option value="PayPal">Von: PayPal</option>
@@ -151,328 +161,444 @@
       <option value="Bar">Nach: Kasse</option>
       <option value="PayPal">Nach: PayPal</option>
     </select>
-    <input id="u_betrag" type="number" inputmode="decimal" step="0.01" min="0" placeholder="Betrag in € (z.B. 300.00)">
-    <input id="u_datum" type="date">
+    <div id="u-bestand" class="bestand-hinweis"></div>
+    <input id="u_betrag" type="number" inputmode="decimal" step="0.01" min="0.01" placeholder="Betrag in € (z.B. 300.00)">
+    <div class="datum-zeile">
+      <input id="u_datum" type="date">
+      <button type="button" onclick="datumSetzen('u_datum',0)">Heute</button>
+      <button type="button" onclick="datumSetzen('u_datum',-1)">Gestern</button>
+    </div>
     <input id="u_erfasser" type="text" placeholder="Dein Name">
     <button id="u_btn" onclick="umbuchen()">Umbuchen</button>
+  </div>
+
+  <div id="box-zaehlen" class="box hidden">
+    <button class="schliessen" onclick="formulareSchliessen()" aria-label="Schließen">×</button>
+    <h3>Kasse zählen</h3>
+    <div class="hint">Trage den tatsächlich gezählten Bargeldbestand ein. Die App bucht nur die Differenz zum aktuellen Kassenbestand.</div>
+    <input id="z_betrag" type="number" inputmode="decimal" step="0.01" min="0" placeholder="Gezählter Kassenbestand in €">
+    <input id="z_spieltag" type="number" inputmode="numeric" min="1" placeholder="Spieltag (optional)">
+    <div class="datum-zeile">
+      <input id="z_datum" type="date">
+      <button type="button" onclick="datumSetzen('z_datum',0)">Heute</button>
+      <button type="button" onclick="datumSetzen('z_datum',-1)">Gestern</button>
+    </div>
+    <input id="z_erfasser" type="text" placeholder="Dein Name">
+    <button id="z_btn" onclick="zaehlen()">Kassenbestand speichern</button>
   </div>
 
   <h2 class="liste-titel">Buchungen</h2>
   <div id="liste"><div class="laden">Lade Daten…</div></div>
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxHT5uNzJmzPVHwzn3jGAUYtpqzn17jXEwO317nAF7DEs2AVImVvf2Cawr8ovZwW4YaCA/exec";
+  <div id="storno-modal" class="modal-bg hidden" onclick="modalHintergrund(event)">
+    <div class="modal">
+      <h3 id="storno-titel">Buchung stornieren?</h3>
+      <p id="storno-text">Die Buchung bleibt zur Nachverfolgung sichtbar und wird durch eine Gegenbuchung ausgeglichen.</p>
+      <div id="storno-detail" class="storno-detail"></div>
+      <div class="modal-actions">
+        <button class="abbrechen" onclick="stornoAbbrechen()">Abbrechen</button>
+        <button id="storno-ja" onclick="stornoBestaetigen()">Ja, stornieren</button>
+      </div>
+    </div>
+  </div>
 
-    let alle = [];
-    let barBestandGesamt = 0;
-    let ruecklageBestandGesamt = 0;
-    let paypalBestandGesamt = 0;
-    let bearbeiteId = null;
-    let spieltagBeruehrt = false;
-    const eur = n => n.toLocaleString("de-DE", {style:"currency", currency:"EUR"});
-    const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  <div id="toast" class="toast"></div>
 
-    let tippTimer = 0;
-    let toastTimer = 0;
-    function toast(text, fehler) {
-      const t = document.getElementById("toast");
-      t.textContent = text;
-      t.className = "toast show" + (fehler ? " fehler" : "");
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => { t.className = "toast" + (fehler ? " fehler" : ""); }, 2200);
+<script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbxHT5uNzJmzPVHwzn3jGAUYtpqzn17jXEwO317nAF7DEs2AVImVvf2Cawr8ovZwW4YaCA/exec";
+
+  let alle = [];
+  let barBestandGesamt = 0;
+  let ruecklageBestandGesamt = 0;
+  let paypalBestandGesamt = 0;
+  let bearbeiteId = null;
+  let spieltagBeruehrt = false;
+  let stornoZiel = null;
+  let tippTimer = 0;
+  let toastTimer = 0;
+  let cbZaehler = 0;
+
+  const eur = n => Number(n || 0).toLocaleString("de-DE", {style:"currency", currency:"EUR"});
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+  function toast(text, fehler) {
+    const t = document.getElementById("toast");
+    t.textContent = text;
+    t.className = "toast show" + (fehler ? " fehler" : "");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.className = "toast" + (fehler ? " fehler" : ""); }, 2400);
+  }
+
+  function nameSpeichern(name) {
+    if (name) { try { localStorage.setItem("kasse_name", name); } catch (e) {} }
+  }
+  function nameLaden() {
+    try { return localStorage.getItem("kasse_name") || ""; } catch (e) { return ""; }
+  }
+  function nameOk(feldId) {
+    const feld = document.getElementById(feldId);
+    if (!feld.value.trim()) {
+      feld.classList.add("pflicht-fehlt");
+      feld.focus();
+      toast("Bitte Namen eingeben", true);
+      return false;
     }
+    feld.classList.remove("pflicht-fehlt");
+    return true;
+  }
+  function nameInAlleFelder(wert) {
+    ["z_erfasser", "erfasser", "u_erfasser"].forEach(id => {
+      const f = document.getElementById(id);
+      if (f) f.value = wert;
+    });
+  }
 
-    function nameSpeichern(name) {
-      if (name) { try { localStorage.setItem("kasse_name", name); } catch (e) {} }
-    }
-    function nameLaden() {
-      try { return localStorage.getItem("kasse_name") || ""; } catch (e) { return ""; }
-    }
-
-    function nameOk(feldId) {
-      const feld = document.getElementById(feldId);
-      if (!feld.value.trim()) {
-        feld.classList.add("pflicht-fehlt");
-        feld.focus();
-        toast("Bitte Namen eingeben", true);
-        return false;
-      }
-      feld.classList.remove("pflicht-fehlt");
-      return true;
-    }
-
-    function nameInAlleFelder(wert) {
-      ["z_erfasser", "erfasser", "u_erfasser"].forEach(function(id) {
-        const f = document.getElementById(id);
-        if (f) f.value = wert;
-      });
-    }
-
-    let cbZaehler = 0;
-    function api(params, onOk) {
-      const cbName = "jsonp_cb_" + (cbZaehler++);
-      const script = document.createElement("script");
-      let fertig = false;
-      window[cbName] = function(data) {
-        fertig = true;
+  function api(params, onOk) {
+    const cbName = "jsonp_cb_" + (cbZaehler++);
+    const script = document.createElement("script");
+    let fertig = false;
+    window[cbName] = function(data) {
+      fertig = true;
+      delete window[cbName];
+      script.remove();
+      onOk(data);
+    };
+    const qs = Object.keys(params).map(k => encodeURIComponent(k) + "=" + encodeURIComponent(params[k])).join("&");
+    script.src = API_URL + "?" + qs + "&callback=" + cbName;
+    script.onerror = function() {
+      if (!fertig) {
         delete window[cbName];
         script.remove();
-        onOk(data);
-      };
-      const qs = Object.keys(params)
-        .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(params[k]))
-        .join("&");
-      script.src = API_URL + "?" + qs + "&callback=" + cbName;
-      script.onerror = function() {
-        if (!fertig) { delete window[cbName]; script.remove(); toast("Verbindung fehlgeschlagen", true); }
-      };
-      document.body.appendChild(script);
+        toast("Verbindung fehlgeschlagen", true);
+      }
+    };
+    document.body.appendChild(script);
+  }
+
+  function bestandFuer(art) {
+    if (art === "Bar") return barBestandGesamt;
+    if (art === "Rücklage") return ruecklageBestandGesamt;
+    if (art === "PayPal") return paypalBestandGesamt;
+    return 0;
+  }
+  function artName(art) { return art === "Bar" ? "Kasse" : art; }
+  function pillKlasse(art) {
+    return art === "PayPal" ? "pill-paypal" : (art === "Rücklage" ? "pill-ruecklage" : "pill-bar");
+  }
+  function betragLesen(id, erlaubtNull) {
+    const feld = document.getElementById(id);
+    const roh = String(feld.value || "").replace(",", ".");
+    const n = Number(roh);
+    const ok = Number.isFinite(n) && (erlaubtNull ? n >= 0 : n > 0);
+    feld.classList.toggle("pflicht-fehlt", !ok);
+    return ok ? Math.round(n * 100) / 100 : null;
+  }
+
+  function datumISO(offsetTage) {
+    const d = new Date();
+    d.setHours(12,0,0,0);
+    d.setDate(d.getDate() + (offsetTage || 0));
+    const p = n => String(n).padStart(2, "0");
+    return d.getFullYear() + "-" + p(d.getMonth()+1) + "-" + p(d.getDate());
+  }
+  function datumSetzen(id, offset) { document.getElementById(id).value = datumISO(offset); }
+  function deDatum(iso) { return iso ? iso.split("-").reverse().join(".") : ""; }
+
+  function formulareSchliessen() {
+    ["box-buchen", "box-umbuch", "box-zaehlen"].forEach(id => document.getElementById(id).classList.add("hidden"));
+    bearbeiteId = null;
+    document.getElementById("btn").textContent = "Buchen";
+  }
+  function formularOeffnen(name) {
+    formulareSchliessen();
+    const box = document.getElementById("box-" + name);
+    box.classList.remove("hidden");
+    if (name === "umbuch") umbuchHinweisAktualisieren();
+    setTimeout(() => box.scrollIntoView({behavior:"smooth", block:"nearest"}), 20);
+  }
+  function neueBuchung(typ) {
+    formularOeffnen("buchen");
+    bearbeiteId = null;
+    document.getElementById("typ").value = typ;
+    document.getElementById("buchen-titel").textContent = typ === "Ausgabe" ? "Ausgabe buchen" : "Einnahme buchen";
+    document.getElementById("buchen-hint").textContent = typ === "Ausgabe" ? "Zum Beispiel Trainergeschenk oder Weihnachtsfeier." : "Spende erfassen.";
+    document.getElementById("btn").textContent = typ === "Ausgabe" ? "Ausgabe buchen" : "Einnahme buchen";
+    document.getElementById("betrag").value = "";
+    document.getElementById("beschreibung").value = "";
+    bestandHinweisAktualisieren();
+  }
+
+  function bestandHinweisAktualisieren() {
+    const box = document.getElementById("ausgabe-bestand");
+    const istAusgabe = document.getElementById("typ").value === "Ausgabe";
+    if (!istAusgabe) { box.classList.add("hidden"); return; }
+    const art = document.getElementById("art").value;
+    box.textContent = "Verfügbar bei " + artName(art) + ": " + eur(bestandFuer(art));
+    box.classList.remove("hidden");
+  }
+  function umbuchHinweisAktualisieren() {
+    const art = document.getElementById("u_von").value;
+    document.getElementById("u-bestand").textContent = "Verfügbar bei " + artName(art) + ": " + eur(bestandFuer(art));
+  }
+
+  function render() {
+    const gesamt = barBestandGesamt + ruecklageBestandGesamt + paypalBestandGesamt;
+    document.getElementById("bar").textContent = eur(barBestandGesamt);
+    document.getElementById("ruecklage").textContent = eur(ruecklageBestandGesamt);
+    document.getElementById("paypal").textContent = eur(paypalBestandGesamt);
+    document.getElementById("gesamt").textContent = eur(gesamt);
+    ["bar", "ruecklage", "paypal", "gesamt"].forEach(id => {
+      const el = document.getElementById(id);
+      el.classList.toggle("neg", Number(el.textContent.replace(/[^0-9,-]/g, "").replace(".", "").replace(",", ".")) < 0);
+    });
+    bestandHinweisAktualisieren();
+    umbuchHinweisAktualisieren();
+
+    if (!alle.length) {
+      document.getElementById("liste").innerHTML = '<div class="leer">Noch keine Buchungen.</div>';
+      return;
     }
 
-    function tab(name) {
-      document.getElementById("box-zaehlen").classList.toggle("hidden", name !== "zaehlen");
-      document.getElementById("box-buchen").classList.toggle("hidden", name !== "buchen");
-      document.getElementById("box-umbuch").classList.toggle("hidden", name !== "umbuch");
-      document.getElementById("tab-zaehlen").classList.toggle("aktiv", name === "zaehlen");
-      document.getElementById("tab-buchen").classList.toggle("aktiv", name === "buchen");
-      document.getElementById("tab-umbuch").classList.toggle("aktiv", name === "umbuch");
+    document.getElementById("liste").innerHTML = alle.map(e => {
+      if (e.kind === "transfer") {
+        const von = artName(e.von), nach = artName(e.nach);
+        let cls = "buchung transfer";
+        let tag = "";
+        let aktion = '<a title="Umbuchung stornieren" onclick="stornoFragenTransfer(' + JSON.stringify(e.ids).replace(/"/g, '&quot;') + ')">🗑</a>';
+        if (e.status === "storniert") {
+          cls += " storniert";
+          tag = '<span class="status-tag tag-storniert">storniert</span>';
+          aktion = "";
+        } else if (e.status === "teilweise") {
+          tag = '<span class="status-tag tag-warn">prüfen</span>';
+          aktion = "";
+        }
+        const erf = e.erfasser ? '<span class="erf">· ' + esc(e.erfasser) + '</span>' : "";
+        return '<div class="' + cls + '">' +
+          '<div class="info"><div class="titel">Umbuchung ' + esc(von) + ' → ' + esc(nach) + tag + '</div>' +
+          '<div class="meta"><span class="datum">' + esc(e.datum) + '</span><span class="pill pill-transfer">↔ ' + esc(von) + ' → ' + esc(nach) + '</span>' + erf + '</div></div>' +
+          '<div class="wert transfer-wert">' + eur(e.betrag) + '</div><div class="aktionen">' + aktion + '</div></div>';
+      }
+
+      const vz = e.typ === "Ausgabe" ? "−" : "+";
+      const wertCls = e.typ === "Ausgabe" ? "neg" : "pos";
+      const titel = e.beschreibung ? esc(e.beschreibung) : (e.typ === "Ausgabe" ? "Ausgabe" : "Einnahme");
+      const erf = e.erfasser ? '<span class="erf">· ' + esc(e.erfasser) + '</span>' : "";
+      let boxCls = "buchung";
+      let statusTag = "";
+      let aktionen = '<a title="Bearbeiten" onclick="bearbeiten(\'' + esc(e.id) + '\')">✎</a><a title="Stornieren" onclick="stornoFragen(\'' + esc(e.id) + '\')">🗑</a>';
+      if (e.status === "storniert") {
+        boxCls += " storniert";
+        statusTag = '<span class="status-tag tag-storniert">storniert</span>';
+        aktionen = "";
+      } else if (e.status === "storno") {
+        boxCls += " storno-zeile";
+        statusTag = '<span class="status-tag tag-storno">Storno</span>';
+        aktionen = "";
+      }
+      return '<div class="' + boxCls + '">' +
+        '<div class="info"><div class="titel">' + titel + statusTag + '</div>' +
+        '<div class="meta"><span class="datum">' + esc(e.datum) + '</span><span class="pill ' + pillKlasse(e.art) + '">' + esc(artName(e.art)) + '</span>' + erf + '</div></div>' +
+        '<div class="wert ' + wertCls + '">' + vz + eur(e.betrag) + '</div><div class="aktionen">' + aktionen + '</div></div>';
+    }).join("");
+  }
+
+  function verarbeite(d) {
+    if (!d || d.fehler) {
+      toast("Fehler: " + (d ? d.fehler : "keine Antwort"), true);
+      return false;
+    }
+    alle = d.entries || [];
+    barBestandGesamt = d.kasseBestand ?? d.barBestand ?? 0;
+    ruecklageBestandGesamt = d.ruecklageBestand || 0;
+    paypalBestandGesamt = d.paypalBestand || 0;
+    if (!spieltagBeruehrt && d.maxSpieltag && d.maxSpieltag > 0) {
+      const feld = document.getElementById("z_spieltag");
+      if (feld && feld.value.trim() === "") feld.value = d.maxSpieltag;
+    }
+    render();
+    return true;
+  }
+
+  function ladeDaten() { api({action:"getEntries"}, verarbeite); }
+
+  function zaehlen() {
+    const betrag = betragLesen("z_betrag", true);
+    if (betrag === null) { toast("Bitte gültigen Kassenbestand eingeben", true); return; }
+    if (!nameOk("z_erfasser")) return;
+    const name = document.getElementById("z_erfasser").value.trim();
+    nameSpeichern(name);
+    const btn = document.getElementById("z_btn");
+    btn.disabled = true; btn.textContent = "Speichere…";
+    api({
+      action:"zaehle", betrag: betrag, erfasser: name,
+      buchungsdatum: deDatum(document.getElementById("z_datum").value),
+      spieltag: document.getElementById("z_spieltag").value.trim()
+    }, d => {
+      btn.disabled = false; btn.textContent = "Kassenbestand speichern";
+      if (!verarbeite(d)) return;
+      document.getElementById("z_betrag").value = "";
+      toast("✓ Kassenbestand gespeichert");
+    });
+  }
+
+  function speichern() {
+    const betrag = betragLesen("betrag", false);
+    if (betrag === null) { toast("Bitte einen Betrag größer als 0 eingeben", true); return; }
+    if (!nameOk("erfasser")) return;
+
+    const art = document.getElementById("art").value;
+    const typ = document.getElementById("typ").value;
+    if (typ === "Ausgabe" && betrag > bestandFuer(art) + 0.0001 && !bearbeiteId) {
+      toast("Ausgabe höher als Bestand bei " + artName(art), true);
+      return;
     }
 
-    function render() {
-      document.getElementById("bar").textContent = eur(barBestandGesamt);
-      document.getElementById("ruecklage").textContent = eur(ruecklageBestandGesamt);
-      document.getElementById("paypal").textContent = eur(paypalBestandGesamt);
-      document.getElementById("gesamt").textContent = eur(barBestandGesamt + ruecklageBestandGesamt + paypalBestandGesamt);
+    const name = document.getElementById("erfasser").value.trim();
+    nameSpeichern(name);
+    const warBearbeitung = !!bearbeiteId;
+    const btn = document.getElementById("btn");
+    btn.disabled = true; btn.textContent = "Speichere…";
+    const p = {
+      action: bearbeiteId ? "update" : "add",
+      betrag: betrag,
+      beschreibung: document.getElementById("beschreibung").value.trim(),
+      erfasser: name,
+      art: art,
+      typ: typ,
+      buchungsdatum: deDatum(document.getElementById("buchungsdatum").value)
+    };
+    if (bearbeiteId) p.id = bearbeiteId;
 
-      if (alle.length === 0) {
-        document.getElementById("liste").innerHTML = '<div class="leer">Noch keine Buchungen.</div>';
+    api(p, d => {
+      btn.disabled = false;
+      if (!verarbeite(d)) {
+        btn.textContent = warBearbeitung ? "Änderung speichern" : (typ === "Ausgabe" ? "Ausgabe buchen" : "Einnahme buchen");
         return;
       }
+      bearbeiteId = null;
+      document.getElementById("betrag").value = "";
+      document.getElementById("beschreibung").value = "";
+      btn.textContent = typ === "Ausgabe" ? "Ausgabe buchen" : "Einnahme buchen";
+      toast(warBearbeitung ? "✓ Änderung gespeichert" : "✓ Gebucht");
+      if (!warBearbeitung) formulareSchliessen();
+    });
+  }
 
-      document.getElementById("liste").innerHTML = alle.map(e => {
-        const vz = e.typ === "Ausgabe" ? "-" : "+";
-        const cls = e.typ === "Ausgabe" ? "neg" : "pos";
-        const pill = e.art === "PayPal" ? "pill-paypal" : (e.art === "Rücklage" ? "pill-ruecklage" : "pill-bar");
-        const artAnzeige = e.art === "Bar" ? "Kasse" : e.art;
-        const titel = e.beschreibung ? esc(e.beschreibung) : (e.typ === "Ausgabe" ? "Ausgabe" : "Einnahme");
-        const erf = e.erfasser ? '<span class="erf">· ' + esc(e.erfasser) + '</span>' : "";
+  function umbuchen() {
+    const betrag = betragLesen("u_betrag", false);
+    if (betrag === null) { toast("Bitte einen Betrag größer als 0 eingeben", true); return; }
+    const von = document.getElementById("u_von").value;
+    const nach = document.getElementById("u_nach").value;
+    if (von === nach) { toast("Quelle und Ziel dürfen nicht gleich sein", true); return; }
+    if (betrag > bestandFuer(von) + 0.0001) { toast("Nicht genügend Guthaben bei " + artName(von), true); return; }
+    if (!nameOk("u_erfasser")) return;
 
-        let boxCls = "buchung";
-        let statusTag = "";
-        let aktionen = '<a title="Bearbeiten" onclick="bearbeiten(\'' + e.id + '\')">✎</a>' +
-                       '<a title="Stornieren" onclick="loeschen(\'' + e.id + '\')">🗑</a>';
-        if (e.status === "storniert") {
-          boxCls += " storniert";
-          statusTag = '<span class="status-tag tag-storniert">storniert</span>';
-          aktionen = "";
-        } else if (e.status === "storno") {
-          boxCls += " storno-zeile";
-          statusTag = '<span class="status-tag tag-storno">Storno</span>';
-          aktionen = "";
+    const name = document.getElementById("u_erfasser").value.trim();
+    nameSpeichern(name);
+    const btn = document.getElementById("u_btn");
+    btn.disabled = true; btn.textContent = "Speichere…";
+    api({
+      action:"umbuch", betrag:betrag, von:von, nach:nach, erfasser:name,
+      buchungsdatum:deDatum(document.getElementById("u_datum").value)
+    }, d => {
+      btn.disabled = false; btn.textContent = "Umbuchen";
+      if (!verarbeite(d)) return;
+      document.getElementById("u_betrag").value = "";
+      toast("✓ " + eur(betrag) + " von " + artName(von) + " zu " + artName(nach) + " umgebucht");
+      formulareSchliessen();
+    });
+  }
+
+  function bearbeiten(id) {
+    const e = alle.find(x => x.id === id && x.kind !== "transfer");
+    if (!e || e.status) return;
+    formularOeffnen("buchen");
+    bearbeiteId = id;
+    document.getElementById("typ").value = e.typ;
+    document.getElementById("art").value = e.art;
+    document.getElementById("betrag").value = e.betrag;
+    document.getElementById("beschreibung").value = e.beschreibung;
+    document.getElementById("erfasser").value = e.erfasser;
+    if (e.iso) document.getElementById("buchungsdatum").value = e.iso;
+    document.getElementById("buchen-titel").textContent = "Buchung bearbeiten";
+    document.getElementById("buchen-hint").textContent = e.typ + " bei " + artName(e.art) + ".";
+    document.getElementById("btn").textContent = "Änderung speichern";
+    bestandHinweisAktualisieren();
+  }
+
+  function stornoFragen(id) {
+    const e = alle.find(x => x.id === id);
+    if (!e || e.status) return;
+    stornoZiel = {typ:"entry", id:id};
+    document.getElementById("storno-titel").textContent = "Buchung wirklich stornieren?";
+    document.getElementById("storno-text").textContent = "Die Buchung wird nicht gelöscht. Sie bleibt sichtbar und wird durch eine Gegenbuchung ausgeglichen.";
+    document.getElementById("storno-detail").innerHTML = '<b>' + esc(e.beschreibung || e.typ) + '</b><br>' + esc(e.datum) + ' · ' + esc(artName(e.art)) + ' · ' + eur(e.betrag);
+    document.getElementById("storno-modal").classList.remove("hidden");
+  }
+
+  function stornoFragenTransfer(ids) {
+    const e = alle.find(x => x.kind === "transfer" && x.ids && x.ids.join(",") === ids.join(","));
+    if (!e || e.status) return;
+    stornoZiel = {typ:"transfer", ids:ids};
+    document.getElementById("storno-titel").textContent = "Umbuchung vollständig stornieren?";
+    document.getElementById("storno-text").textContent = "Beide Seiten der Umbuchung werden gemeinsam rückgängig gemacht. Eine einzelne Seite kann nicht storniert werden.";
+    document.getElementById("storno-detail").innerHTML = '<b>' + esc(artName(e.von)) + ' → ' + esc(artName(e.nach)) + '</b><br>' + esc(e.datum) + ' · ' + eur(e.betrag);
+    document.getElementById("storno-modal").classList.remove("hidden");
+  }
+
+  function stornoAbbrechen() {
+    stornoZiel = null;
+    document.getElementById("storno-modal").classList.add("hidden");
+  }
+  function modalHintergrund(ev) { if (ev.target.id === "storno-modal") stornoAbbrechen(); }
+  function stornoBestaetigen() {
+    if (!stornoZiel) return;
+    const ziel = stornoZiel;
+    const btn = document.getElementById("storno-ja");
+    btn.disabled = true; btn.textContent = "Storniere…";
+    const params = ziel.typ === "transfer"
+      ? {action:"deleteTransfer", ids:ziel.ids.join(","), erfasser:nameLaden()}
+      : {action:"delete", id:ziel.id, erfasser:nameLaden()};
+    api(params, d => {
+      btn.disabled = false; btn.textContent = "Ja, stornieren";
+      if (!verarbeite(d)) return;
+      stornoAbbrechen();
+      toast(ziel.typ === "transfer" ? "✓ Umbuchung vollständig storniert" : "✓ Buchung storniert");
+    });
+  }
+
+  // Initialisierung
+  ["buchungsdatum", "u_datum", "z_datum"].forEach(id => datumSetzen(id, 0));
+  const gemerkt = nameLaden();
+  if (gemerkt) nameInAlleFelder(gemerkt);
+
+  ["z_erfasser", "erfasser", "u_erfasser"].forEach(id => {
+    const feld = document.getElementById(id);
+    if (!feld) return;
+    feld.addEventListener("input", function() {
+      const wert = feld.value;
+      nameSpeichern(wert.trim());
+      ["z_erfasser", "erfasser", "u_erfasser"].forEach(anderes => {
+        if (anderes !== id) {
+          const f = document.getElementById(anderes);
+          if (f) f.value = wert;
         }
-
-        return '<div class="' + boxCls + '">' +
-          '<div class="info"><div class="titel">' + titel + statusTag + '</div>' +
-          '<div class="meta"><span class="datum">' + e.datum + '</span>' +
-          '<span class="pill ' + pill + '">' + artAnzeige + '</span>' + erf + '</div></div>' +
-          '<div class="wert ' + cls + '">' + vz + eur(e.betrag) + '</div>' +
-          '<div class="aktionen">' + aktionen + '</div></div>';
-      }).join("");
-    }
-
-    function verarbeite(d) {
-      if (!d || d.fehler) { toast("Fehler: " + (d ? d.fehler : "keine Antwort"), true); return; }
-      alle = d.entries || [];
-      barBestandGesamt = d.kasseBestand ?? d.barBestand ?? 0;
-      ruecklageBestandGesamt = d.ruecklageBestand || 0;
-      paypalBestandGesamt = d.paypalBestand || 0;
-      if (!spieltagBeruehrt && d.maxSpieltag && d.maxSpieltag > 0) {
-        const feld = document.getElementById("z_spieltag");
-        if (feld && feld.value.trim() === "") feld.value = d.maxSpieltag;
-      }
-      render();
-    }
-
-    function ladeDaten() {
-      api({ action: "getEntries" }, verarbeite);
-    }
-
-    // Zeigt eine Buchung sofort an, während im Hintergrund gespeichert wird
-    function sofortAnzeigen(eintrag) {
-      alle.unshift(eintrag);
-      const delta = (eintrag.typ === "Ausgabe" ? -eintrag.betrag : eintrag.betrag);
-      if (eintrag.art === "Bar") barBestandGesamt = Math.round((barBestandGesamt + delta) * 100) / 100;
-      else if (eintrag.art === "Rücklage") ruecklageBestandGesamt = Math.round((ruecklageBestandGesamt + delta) * 100) / 100;
-      else if (eintrag.art === "PayPal") paypalBestandGesamt = Math.round((paypalBestandGesamt + delta) * 100) / 100;
-      render();
-    }
-
-    function heuteDe() {
-      const d = new Date();
-      const p = n => String(n).padStart(2, "0");
-      return p(d.getDate()) + "." + p(d.getMonth()+1) + "." + d.getFullYear();
-    }
-
-    function zaehlen() {
-      const betrag = document.getElementById("z_betrag").value;
-      if (betrag === "") { toast("Bitte gezählten Kassenbestand eingeben", true); return; }
-      if (!nameOk("z_erfasser")) return;
-      const name = document.getElementById("z_erfasser").value.trim();
-      nameSpeichern(name);
-      const spieltag = document.getElementById("z_spieltag").value.trim();
-      const btn = document.getElementById("z_btn");
-      btn.disabled = true; btn.textContent = "Speichere…";
-      const iso = document.getElementById("z_datum").value;
-      const de = iso ? iso.split("-").reverse().join(".") : "";
-      api({ action:"zaehle", betrag: betrag, erfasser: name, buchungsdatum: de, spieltag: spieltag }, d => {
-        if (!d || d.fehler) {
-          btn.disabled = false; btn.textContent = "Kassenbestand speichern";
-          verarbeite(d);
-          return;
-        }
-        verarbeite(d);
-        document.getElementById("z_betrag").value = "";
-        btn.disabled = false; btn.textContent = "Kassenbestand speichern";
-        toast("✓ Kassenbestand gespeichert");
-      });
-    }
-
-    function speichern() {
-      const betrag = document.getElementById("betrag").value;
-      if (!betrag) { toast("Bitte Betrag eingeben", true); return; }
-      if (!nameOk("erfasser")) return;
-      const name = document.getElementById("erfasser").value.trim();
-      nameSpeichern(name);
-      const war = bearbeiteId;
-      const btn = document.getElementById("btn");
-      btn.disabled = true; btn.textContent = "Speichere…";
-      const iso = document.getElementById("buchungsdatum").value;
-      const de = iso ? iso.split("-").reverse().join(".") : "";
-      const cb = d => {
-        verarbeite(d);
-        document.getElementById("betrag").value = "";
-        document.getElementById("beschreibung").value = "";
-        btn.disabled = false; btn.textContent = "Buchen";
-        bearbeiteId = null;
-        toast(war ? "✓ Änderung gespeichert" : "✓ Gebucht");
-      };
-      const p = {
-        betrag: betrag,
-        beschreibung: document.getElementById("beschreibung").value,
-        erfasser: name,
-        art: document.getElementById("art").value,
-        typ: document.getElementById("typ").value,
-        buchungsdatum: de
-      };
-      if (bearbeiteId) { p.action = "update"; p.id = bearbeiteId; api(p, cb); }
-      else {
-        p.action = "add";
-        sofortAnzeigen({
-          datum: de || heuteDe(),
-          iso: "",
-          betrag: Number(String(betrag).replace(",", ".")) || 0,
-          beschreibung: p.beschreibung,
-          erfasser: name,
-          art: p.art,
-          typ: p.typ,
-          id: "temp-" + Date.now(),
-          status: ""
-        });
-        api(p, cb);
-      }
-    }
-
-    function umbuchen() {
-      const betrag = document.getElementById("u_betrag").value;
-      if (!betrag) { toast("Bitte Betrag eingeben", true); return; }
-      const von = document.getElementById("u_von").value;
-      const nach = document.getElementById("u_nach").value;
-      if (von === nach) { toast("Quelle und Ziel dürfen nicht gleich sein", true); return; }
-      if (!nameOk("u_erfasser")) return;
-      const name = document.getElementById("u_erfasser").value.trim();
-      nameSpeichern(name);
-      const btn = document.getElementById("u_btn");
-      btn.disabled = true; btn.textContent = "Speichere…";
-      const iso = document.getElementById("u_datum").value;
-      const de = iso ? iso.split("-").reverse().join(".") : "";
-      api({ action:"umbuch", betrag: betrag, von: von, nach: nach, erfasser: name, buchungsdatum: de }, d => {
-        if (!d || d.fehler) {
-          btn.disabled = false; btn.textContent = "Umbuchen";
-          verarbeite(d);
-          return;
-        }
-        verarbeite(d);
-        document.getElementById("u_betrag").value = "";
-        btn.disabled = false; btn.textContent = "Umbuchen";
-        toast("✓ Umgebucht");
-      });
-    }
-
-    function bearbeiten(id) {
-      const e = alle.find(x => x.id === id);
-      if (!e) return;
-      tab("buchen");
-      document.getElementById("typ").value = e.typ;
-      document.getElementById("art").value = e.art;
-      document.getElementById("betrag").value = e.betrag;
-      document.getElementById("beschreibung").value = e.beschreibung;
-      document.getElementById("erfasser").value = e.erfasser;
-      if (e.iso) document.getElementById("buchungsdatum").value = e.iso;
-      bearbeiteId = id;
-      document.getElementById("btn").textContent = "Änderung speichern";
-      window.scrollTo(0,0);
-    }
-
-    function loeschen(id) {
-      if (!confirm("Diese Buchung stornieren? Sie bleibt zur Nachverfolgung sichtbar.")) return;
-      api({ action:"delete", id: id, erfasser: nameLaden() }, d => { verarbeite(d); toast("✓ Storniert"); });
-    }
-
-    const heute = new Date().toISOString().slice(0,10);
-    document.getElementById("z_datum").value = heute;
-    document.getElementById("u_datum").value = heute;
-    const gemerkt = nameLaden();
-    if (gemerkt) nameInAlleFelder(gemerkt);
-
-    ["z_erfasser", "erfasser", "u_erfasser"].forEach(function(id) {
-      const feld = document.getElementById(id);
-      if (feld) feld.addEventListener("input", function() {
-        const wert = feld.value;
-        nameSpeichern(wert.trim());
-        ["z_erfasser", "erfasser", "u_erfasser"].forEach(function(anderes) {
-          if (anderes !== id) {
-            const f = document.getElementById(anderes);
-            if (f) f.value = wert;
-          }
-        });
       });
     });
+  });
 
-    const stFeld = document.getElementById("z_spieltag");
-    if (stFeld) stFeld.addEventListener("input", function() { spieltagBeruehrt = true; });
+  document.getElementById("z_spieltag").addEventListener("input", () => { spieltagBeruehrt = true; });
+  document.addEventListener("input", () => { tippTimer = Date.now(); });
 
-    document.addEventListener("input", function() { tippTimer = Date.now(); });
+  setInterval(function() {
+    const tippAktiv = (Date.now() - tippTimer) < 8000;
+    const modalOffen = !document.getElementById("storno-modal").classList.contains("hidden");
+    if (tippAktiv || bearbeiteId || modalOffen) return;
+    api({action:"getEntries"}, d => { if (d && !d.fehler) verarbeite(d); });
+  }, 75000);
 
-    setInterval(function() {
-      const tippAktiv = (Date.now() - tippTimer) < 8000;
-      if (tippAktiv || bearbeiteId) return;
-      api({ action: "getEntries" }, function(d) {
-        if (d && !d.fehler) {
-          alle = d.entries || [];
-          barBestandGesamt = d.kasseBestand ?? d.barBestand ?? 0;
-      ruecklageBestandGesamt = d.ruecklageBestand || 0;
-      paypalBestandGesamt = d.paypalBestand || 0;
-          if (!spieltagBeruehrt && d.maxSpieltag && d.maxSpieltag > 0) {
-            const feld = document.getElementById("z_spieltag");
-            if (feld && feld.value.trim() === "") feld.value = d.maxSpieltag;
-          }
-          render();
-        }
-      });
-    }, 75000);
-
-    ladeDaten();
-  </script>
-  <div id="toast" class="toast"></div>
+  ladeDaten();
+</script>
 </body>
 </html>
