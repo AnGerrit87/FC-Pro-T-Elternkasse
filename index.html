@@ -264,7 +264,7 @@
       onOk(data);
     };
     const qs = Object.keys(params).map(k => encodeURIComponent(k) + "=" + encodeURIComponent(params[k])).join("&");
-    script.src = API_URL + "?" + qs + "&callback=" + cbName;
+    script.src = API_URL + "?" + qs + "&callback=" + cbName + "&_=" + Date.now();
     script.onerror = function() {
       if (!fertig) {
         delete window[cbName];
@@ -347,9 +347,13 @@
     document.getElementById("ruecklage").textContent = eur(ruecklageBestandGesamt);
     document.getElementById("paypal").textContent = eur(paypalBestandGesamt);
     document.getElementById("gesamt").textContent = eur(gesamt);
-    ["bar", "ruecklage", "paypal", "gesamt"].forEach(id => {
-      const el = document.getElementById(id);
-      el.classList.toggle("neg", Number(el.textContent.replace(/[^0-9,-]/g, "").replace(".", "").replace(",", ".")) < 0);
+    [
+      ["bar", barBestandGesamt],
+      ["ruecklage", ruecklageBestandGesamt],
+      ["paypal", paypalBestandGesamt],
+      ["gesamt", gesamt]
+    ].forEach(([id, wert]) => {
+      document.getElementById(id).classList.toggle("neg", Number(wert) < 0);
     });
     bestandHinweisAktualisieren();
     umbuchHinweisAktualisieren();
@@ -591,13 +595,8 @@
   document.getElementById("z_spieltag").addEventListener("input", () => { spieltagBeruehrt = true; });
   document.addEventListener("input", () => { tippTimer = Date.now(); });
 
-  setInterval(function() {
-    const tippAktiv = (Date.now() - tippTimer) < 8000;
-    const modalOffen = !document.getElementById("storno-modal").classList.contains("hidden");
-    if (tippAktiv || bearbeiteId || modalOffen) return;
-    api({action:"getEntries"}, d => { if (d && !d.fehler) verarbeite(d); });
-  }, 75000);
-
+  // Einmal beim Start laden. Nach jeder Änderung kommt der aktuelle Stand
+  // direkt vom Backend zurück – kein Voll-Reload alle 75 Sekunden.
   ladeDaten();
 </script>
 </body>
