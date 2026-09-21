@@ -264,7 +264,7 @@
       onOk(data);
     };
     const qs = Object.keys(params).map(k => encodeURIComponent(k) + "=" + encodeURIComponent(params[k])).join("&");
-    script.src = API_URL + "?" + qs + "&callback=" + cbName;
+    script.src = API_URL + "?" + qs + "&callback=" + cbName + "&_=" + Date.now();
     script.onerror = function() {
       if (!fertig) {
         delete window[cbName];
