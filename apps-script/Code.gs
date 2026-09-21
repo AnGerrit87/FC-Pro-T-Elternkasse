@@ -55,7 +55,42 @@ function doGet(e) {
 }
 
 function getSheet() {
-  return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  if (!sheet) {
+    throw new Error("Das Tabellenblatt \"" + SHEET_NAME + "\" wurde nicht gefunden.");
+  }
+  ensureHeaders_(sheet);
+  return sheet;
+}
+
+function ensureHeaders_(sheet) {
+  const headers = [
+    "Zeitstempel", "Datum", "Betrag", "Beschreibung", "Erfasser",
+    "Art", "Typ", "Buchungsdatum", "ID", "Status", "Transfer-ID"
+  ];
+
+  if (sheet.getMaxColumns() < headers.length) {
+    sheet.insertColumnsAfter(sheet.getMaxColumns(), headers.length - sheet.getMaxColumns());
+  }
+
+  if (sheet.getLastRow() === 0) {
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    return;
+  }
+
+  const vorhandene = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
+  let geaendert = false;
+
+  headers.forEach((header, i) => {
+    if (!String(vorhandene[i] || "").trim()) {
+      vorhandene[i] = header;
+      geaendert = true;
+    }
+  });
+
+  if (geaendert) {
+    sheet.getRange(1, 1, 1, headers.length).setValues([vorhandene]);
+  }
 }
 
 function leseDaten_(sheet) {
@@ -214,12 +249,7 @@ function addEntry(betrag, beschreibung, erfasser, art, typ, buchungsdatum) {
   return getEntries();
 }
 
-function bestaende() {
-  const sheet = getSheet();
-  const values = leseDaten_(sheet);
-
-  values.shift();
-
+function bestaendeAusDaten_(values) {
   const result = {};
 
   result[ART_KASSE] = 0;
@@ -247,6 +277,12 @@ function bestaende() {
   });
 
   return result;
+}
+
+function bestaende() {
+  const sheet = getSheet();
+  const values = leseDaten_(sheet);
+  return bestaendeAusDaten_(values.slice(1));
 }
 
 function barBestand() {
@@ -619,7 +655,7 @@ function updateEntry(
       );
     }
 
-    const best = bestaende();
+    const best = bestaendeAusDaten_(values.slice(1));
 
     const altArt =
       String(alt[5] || ART_KASSE);
