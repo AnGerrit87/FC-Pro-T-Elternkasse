@@ -424,6 +424,44 @@
     return true;
   }
 
+  function verarbeiteMutation(d) {
+    // Abwärtskompatibel: Solange noch die alte Code.gs läuft, kann sie weiterhin
+    // die vollständige Liste liefern. Die neue API liefert nur noch die Änderung.
+    if (d && Array.isArray(d.entries)) return verarbeite(d);
+    if (!d || d.fehler) {
+      toast("Fehler: " + (d ? d.fehler : "keine Antwort"), true);
+      return false;
+    }
+
+    barBestandGesamt = d.kasseBestand ?? d.barBestand ?? barBestandGesamt;
+    ruecklageBestandGesamt = d.ruecklageBestand ?? ruecklageBestandGesamt;
+    paypalBestandGesamt = d.paypalBestand ?? paypalBestandGesamt;
+
+    if (d.action === "add" || d.action === "zaehle") {
+      if (d.entry) alle.unshift(d.entry);
+    } else if (d.action === "update" && d.entry) {
+      const i = alle.findIndex(e => e.kind !== "transfer" && e.id === d.entry.id);
+      if (i >= 0) alle[i] = d.entry;
+    } else if (d.action === "umbuch" && d.entry) {
+      alle.unshift(d.entry);
+    } else if (d.action === "delete") {
+      const i = alle.findIndex(e => e.kind !== "transfer" && e.id === d.id);
+      if (i >= 0) alle[i] = Object.assign({}, alle[i], {status:"storniert"});
+      if (d.entry) alle.unshift(d.entry);
+    } else if (d.action === "deleteTransfer") {
+      const ids = d.ids || [];
+      const i = alle.findIndex(e => e.kind === "transfer" && e.ids && e.ids.some(id => ids.indexOf(id) !== -1));
+      if (i >= 0) alle[i] = Object.assign({}, alle[i], {status:"storniert"});
+    }
+
+    if (!spieltagBeruehrt && d.maxSpieltag && d.maxSpieltag > 0) {
+      const feld = document.getElementById("z_spieltag");
+      if (feld && feld.value.trim() === "") feld.value = d.maxSpieltag;
+    }
+    render();
+    return true;
+  }
+
   function ladeDaten() { api({action:"getEntries"}, verarbeite); }
 
   function zaehlen() {
@@ -440,7 +478,7 @@
       spieltag: document.getElementById("z_spieltag").value.trim()
     }, d => {
       btn.disabled = false; btn.textContent = "Kassenbestand speichern";
-      if (!verarbeite(d)) return;
+      if (!verarbeiteMutation(d)) return;
       document.getElementById("z_betrag").value = "";
       toast("✓ Kassenbestand gespeichert");
     });
@@ -476,7 +514,7 @@
 
     api(p, d => {
       btn.disabled = false;
-      if (!verarbeite(d)) {
+      if (!verarbeiteMutation(d)) {
         btn.textContent = warBearbeitung ? "Änderung speichern" : (typ === "Ausgabe" ? "Ausgabe buchen" : "Einnahme buchen");
         return;
       }
@@ -507,7 +545,7 @@
       buchungsdatum:deDatum(document.getElementById("u_datum").value)
     }, d => {
       btn.disabled = false; btn.textContent = "Umbuchen";
-      if (!verarbeite(d)) return;
+      if (!verarbeiteMutation(d)) return;
       document.getElementById("u_betrag").value = "";
       toast("✓ " + eur(betrag) + " von " + artName(von) + " zu " + artName(nach) + " umgebucht");
       formulareSchliessen();
@@ -566,7 +604,7 @@
       : {action:"delete", id:ziel.id, erfasser:nameLaden()};
     api(params, d => {
       btn.disabled = false; btn.textContent = "Ja, stornieren";
-      if (!verarbeite(d)) return;
+      if (!verarbeiteMutation(d)) return;
       stornoAbbrechen();
       toast(ziel.typ === "transfer" ? "✓ Umbuchung vollständig storniert" : "✓ Buchung storniert");
     });
