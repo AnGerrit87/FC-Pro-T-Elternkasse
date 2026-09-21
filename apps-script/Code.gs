@@ -10,7 +10,14 @@ function doGet(e) {
   const action = p.action || "getEntries";
   let ergebnis;
 
+  const istMutation = action !== "getEntries";
+  const lock = istMutation ? LockService.getScriptLock() : null;
+
   try {
+    if (lock && !lock.tryLock(10000)) {
+      throw new Error("Die Kasse wird gerade von jemand anderem aktualisiert. Bitte kurz erneut versuchen.");
+    }
+
     if (action === "getEntries") {
       ergebnis = getEntries();
     } else if (action === "add") {
@@ -30,6 +37,8 @@ function doGet(e) {
     }
   } catch (err) {
     ergebnis = { fehler: String(err && err.message ? err.message : err) };
+  } finally {
+    if (lock && lock.hasLock()) lock.releaseLock();
   }
 
   const json = JSON.stringify(ergebnis);
@@ -47,6 +56,12 @@ function doGet(e) {
 
 function getSheet() {
   return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+}
+
+function leseDaten_(sheet) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 1) return [];
+  return sheet.getRange(1, 1, lastRow, 11).getValues();
 }
 
 function getArchiv() {
@@ -201,7 +216,7 @@ function addEntry(betrag, beschreibung, erfasser, art, typ, buchungsdatum) {
 
 function bestaende() {
   const sheet = getSheet();
-  const values = sheet.getDataRange().getValues();
+  const values = leseDaten_(sheet);
 
   values.shift();
 
@@ -320,31 +335,18 @@ function umbuchen(betrag, von, nach, erfasser, buchungsdatum) {
 
   const transferId = neueTransferId();
 
-  appendBuchung(
-    sheet,
-    now,
-    b,
-    beschreibung,
-    erfasser,
-    von,
-    "Ausgabe",
-    datum,
-    "",
-    transferId
-  );
-
-  appendBuchung(
-    sheet,
-    now,
-    b,
-    beschreibung,
-    erfasser,
-    nach,
-    "Einnahme",
-    datum,
-    "",
-    transferId
-  );
+  const anzeigeZeit = Utilities.formatDate(now, "Europe/Berlin", "dd.MM.yyyy HH:mm");
+  const startRow = sheet.getLastRow() + 1;
+  sheet.getRange(startRow, 1, 2, 11).setValues([
+    [
+      now, anzeigeZeit, runde2(b), beschreibung, erfasser || "",
+      von, "Ausgabe", datum, neueId(), "", transferId
+    ],
+    [
+      now, anzeigeZeit, runde2(b), beschreibung, erfasser || "",
+      nach, "Einnahme", datum, neueId(), "", transferId
+    ]
+  ]);
 
   return getEntries();
 }
@@ -368,7 +370,7 @@ function archivieren(archiv, now, storniertVon, r) {
 
 function storniereEntry(id, storniertVon) {
   const sheet = getSheet();
-  const values = sheet.getDataRange().getValues();
+  const values = leseDaten_(sheet);
 
   for (let i = 1; i < values.length; i++) {
     if (String(values[i][8]) !== String(id)) {
@@ -451,7 +453,7 @@ function storniereUmbuchung(idsText, storniertVon) {
   }
 
   const sheet = getSheet();
-  const values = sheet.getDataRange().getValues();
+  const values = leseDaten_(sheet);
 
   const treffer = [];
 
@@ -590,7 +592,7 @@ function updateEntry(
   }
 
   const sheet = getSheet();
-  const values = sheet.getDataRange().getValues();
+  const values = leseDaten_(sheet);
 
   for (let i = 1; i < values.length; i++) {
     if (String(values[i][8]) !== String(id)) {
@@ -645,22 +647,27 @@ function updateEntry(
       neuFaktor * b
     );
 
-    if ((best[art] || 0) < -0.0001) {
+    const negativ = [ART_KASSE, ART_RUECKLAGE, ART_PAYPAL]
+      .find(a => (best[a] || 0) < -0.0001);
+
+    if (negativ) {
       throw new Error(
         "Durch diese Änderung würde " +
-        artName(art) +
+        artName(negativ) +
         " ins Minus rutschen."
       );
     }
 
     const row = i + 1;
 
-    sheet.getRange(row, 3).setValue(b);
-    sheet.getRange(row, 4).setValue(beschreibung || "");
-    sheet.getRange(row, 5).setValue(erfasser || "");
-    sheet.getRange(row, 6).setValue(art);
-    sheet.getRange(row, 7).setValue(typ);
-    sheet.getRange(row, 8).setValue(buchungsdatum || "");
+    sheet.getRange(row, 3, 1, 6).setValues([[
+      b,
+      beschreibung || "",
+      erfasser || "",
+      art,
+      typ,
+      buchungsdatum || ""
+    ]]);
 
     return getEntries();
   }
@@ -699,7 +706,7 @@ function legacyTransferKey(r) {
 
 function getEntries() {
   const sheet = getSheet();
-  const values = sheet.getDataRange().getValues();
+  const values = leseDaten_(sheet);
 
   values.shift();
 
